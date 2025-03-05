@@ -40,6 +40,7 @@ export namespace EditorMath {
         return parseFloat(n.toFixed(digits));
     }
 
+    //TESTED
     /**
      * 
      * Porownuje dwie liczby zmiennoprzecinkowe
@@ -55,6 +56,7 @@ export namespace EditorMath {
         
     }
 
+    //TESTED
     /**
      * Porownoje dwa wektory o wsp zmiennoprzecikowych
      * 
@@ -67,6 +69,7 @@ export namespace EditorMath {
         return Math.abs(v1.x-v2.x) < tolerance && Math.abs(v1.y - v2.y) < tolerance;
     }
 
+    //TESTED
     /**
      * 
      * Punnkt wspoliniowo
@@ -97,6 +100,24 @@ export namespace EditorMath {
         
     }
 
+    //TESTED
+    /**
+     * 
+     * Czy punkt lezy na prostej
+     * 
+     * @param point1 1 wspolrzedna prostej
+     * @param point2 2 wspolrzedna prostej
+     * @param pointToCheck punkt do sprawdzenia
+     * @param tolerance  tolerancja dla porownania liczb zmiennoprzecinkowych 
+     * @returns 
+     */
+    export function pointInLine(point1: Vector2, point2: Vector2, pointToCheck: Vector2, tolerance?:number) {
+
+        const tol:number = (tolerance != undefined) ? tolerance : TOLERANCE_0_15;
+        return  equalsDecimals(pointCollinear(point1, point2, pointToCheck), 0, tol );
+    }
+
+    //TESTED
     /**
      * 
      * Czy punkt do sprawdzenia lezy na odcinku (point1, point2)
@@ -106,9 +127,10 @@ export namespace EditorMath {
      * @param pointToCheck wspolrzedne punktu do sprawdzenia
      * @returns 
      */
-    export function pointOnLineSegment(point1: Vector2, point2: Vector2, pointToCheck: Vector2){
+    export function pointOnLineSegment(point1: Vector2, point2: Vector2, pointToCheck: Vector2, tolerance?:number){
 
-        return  equalsDecimals(pointCollinear(point1, point2, pointToCheck), 0, TOLERANCE_0_15 ) && minMaxPointsToOnLineSegment(point1, point2, pointToCheck);
+        const tol:number = (tolerance != undefined) ? tolerance : TOLERANCE_0_15;
+        return  equalsDecimals(pointCollinear(point1, point2, pointToCheck), 0, tol ) && minMaxPointsToOnLineSegment(point1, point2, pointToCheck);
     }
 
     function minMaxPointsToOnLineSegment(point1: Vector2, point2: Vector2, pointToCheck: Vector2){
@@ -122,6 +144,82 @@ export namespace EditorMath {
         && Math.min(point1.y, point2.y) <= pointToCheck.y && pointToCheck.y <= Math.max(point1.y, point2.y);
     }
 
+
+    interface ILinesParallelParams {
+        dir1: Vector2;
+        dir2: Vector2;
+        den: number;
+        isParallel: boolean;
+    }
+
+    //TESTED
+    export function linesParallelParams(point1: Vector2, point2: Vector2, point3: Vector2, point4: Vector2, tolerance?:number): ILinesParallelParams{
+
+ 
+
+        const tol:number = (tolerance != undefined) ? tolerance : TOLERANCE_0_15;
+        /**
+         * Wektory kierunkowe
+         */
+        const dir1 = new Vector2().subVectors(point2, point1);
+        const dir2 = new Vector2().subVectors(point4, point3);
+      
+        
+       // const denominator = dir1.x * dir2.y - dir1.y * dir2.x;
+        
+        const den = dir1.cross(dir2);
+
+        const params: ILinesParallelParams = {
+            dir1: dir1,
+            dir2: dir2,
+            den: den,
+            isParallel: equalsDecimals(den, 0, tol)
+        }
+
+        return params
+    }
+
+    //TESTED
+    /**
+     * 
+     * Czy dwie linnie sa rownolegle
+     * 
+     * @param point1 ws1 pierwszej linni
+     * @param point2 ws2 pierwszej linni 
+     * @param point3 ws1 drogiej linni
+     * @param point4 ws2 drugiej linni
+     * @param tolerance tolerancja
+     * @returns 
+     */
+    export function linesParallel(point1: Vector2, point2: Vector2, point3: Vector2, point4: Vector2, tolerance?:number): boolean{
+
+        return linesParallelParams(point1, point2, point3, point4, tolerance).isParallel;
+
+    }
+
+    //TESTED
+    /**
+     * 
+     * Sprawdzenie czy linia o wsp point1 i point2 jest wspolinniowa do lini o wsp point3 i point4
+     * 
+     * @param point1 
+     * @param point2 
+     * @param point3 
+     * @param point4 
+     * @returns 
+     */
+    export function linesCollinear(point1: Vector2, point2: Vector2, point3: Vector2, point4: Vector2, tolerance?:number) {
+
+        const tol:number = (tolerance != undefined) ? tolerance : TOLERANCE_0_15;
+        const v1 = new Vector2().subVectors(point1, point2);
+        const vs1 = new Vector2().subVectors(point1, point3);
+        const vs2 = new Vector2().subVectors(point1, point4);
+
+        return equalsDecimals(v1.cross(vs1), 0, tol) && equalsDecimals(v1.cross(vs2), 0, tol);
+
+    }
+
+    //TESTED
     /**
      * 
      * Czy dwa odcinki o wspolrzednych (point1, point 2) i (point3, point4) przecinaja sie
@@ -154,6 +252,93 @@ export namespace EditorMath {
         return IntersectionType.noIntersection;
         
     }
+
+    //TESTED
+    /**
+     * 
+     * Zwraca punk przecięcia się dwoch prostych o punktach (point1, point2) oraz (point3, point4)
+     * Jezeli brak przeciecia zwraca null
+     * 
+     * @param point1 1 wspolrzedna prostej 1
+     * @param point2 2 wspolrzedna prostej 1
+     * @param point3 1 wspolrzedna prostej 2
+     * @param point4 2 wpsolrzedna prostej 2
+     */
+    export function intersectionTwoLinePoint(point1: Vector2, point2: Vector2, point3: Vector2, point4: Vector2, tolerance?: number): Vector2 | null{
+
+        const tol:number = (tolerance != undefined) ? tolerance : TOLERANCE_0_15;
+
+        const paramsParallel = linesParallelParams(point1, point2, point3, point4, tol);
+
+        if(paramsParallel.isParallel){
+
+            return null;
+        }
+
+        // Oblicz różnicę punktów początkowych
+        const delta = new Vector2().subVectors(point3, point1);
+
+        /**
+         * Oblicz parametr t dla pierwszej prostej
+         * delta.x * paramsParallel.dir2.y - delta.y * paramsParallel.dir2.x) / paramsParallel.den;
+         */
+        const t = delta.cross(paramsParallel.dir2) / paramsParallel.den;
+        // Oblicz punkt przecięcia
+        const point = new Vector2(
+            point1.x + t * paramsParallel.dir1.x,
+            point1.y + t * paramsParallel.dir1.y
+        );
+
+        return point;
+
+    }
+
+    //TESTED
+    /**
+     * 
+     * Zwraca punk przecięcia się dwoch prostych o punktach (point1, point2) oraz (point3, point4)
+     * Jezeli brak przeciecia zwraca null
+     * 
+     * @param point1 1 wspolrzedna prostej 1
+     * @param point2 2 wspolrzedna prostej 1
+     * @param point3 1 wspolrzedna prostej 2
+     * @param point4 2 wpsolrzedna prostej 2
+     */
+    export function intersectionTwoSegmentPoint(point1: Vector2, point2: Vector2, point3: Vector2, point4: Vector2, tolerance?: number): Vector2 | null{
+
+        const tol:number = (tolerance != undefined) ? tolerance : TOLERANCE_0_15;
+
+        const paramsParallel = linesParallelParams(point1, point2, point3, point4, tol);
+
+        if(paramsParallel.isParallel){
+
+            return null;
+        }
+
+        // Oblicz różnicę punktów początkowych
+        const delta = new Vector2().subVectors(point3, point1);
+
+        /**
+         * Oblicz parametr t dla pierwszej prostej
+         * delta.x * paramsParallel.dir2.y - delta.y * paramsParallel.dir2.x) / paramsParallel.den;
+         */
+        const t = delta.cross(paramsParallel.dir2) / paramsParallel.den;
+        const u = delta.cross(paramsParallel.dir1) / paramsParallel.den;
+
+        // Sprawdź, czy punkt leży na obu odcinkach
+        if (t < 0 || t > 1 || u < 0 || u > 1) return null;
+
+        // Oblicz punkt przecięcia
+        const point = new Vector2(
+            point1.x + t * paramsParallel.dir1.x,
+            point1.y + t * paramsParallel.dir1.y
+        );
+
+        return point;
+
+    }
+
+
 
     /**
      * 
@@ -202,25 +387,7 @@ export namespace EditorMath {
 
     }
 
-    /**
-     * 
-     * Sprawdzenie czy linia o wsp point1 i point2 jest wspolinniowa do lini wo ws point3 i point4
-     * 
-     * @param point1 
-     * @param point2 
-     * @param point3 
-     * @param point4 
-     * @returns 
-     */
-    export function linesCollinear(point1: Vector2, point2: Vector2, point3: Vector2, point4: Vector2) {
 
-        const v1 = new Vector2().subVectors(point1, point2);
-        const vs1 = new Vector2().subVectors(point1, point3);
-        const vs2 = new Vector2().subVectors(point1, point4);
-
-        return equalsDecimals(v1.cross(vs1), 0, TOLERANCE_0_10) && equalsDecimals(v1.cross(vs2), 0, TOLERANCE_0_10);
-
-    }
 
 
     /**
@@ -233,33 +400,34 @@ export namespace EditorMath {
      * @param point3 1 wspolrzedna prostej 2
      * @param point4 2 wpsolrzedna prostej 2
      */
-    export function intersectionTwoLinePoint(point1: Vector2, point2: Vector2, point3: Vector2, point4: Vector2, c1?: {a: number, b: number}, c2?:{a: number, b: number}): Vector2 | undefined{
+    // export function intersectionTwoLinePoint(point1: Vector2, point2: Vector2, point3: Vector2, point4: Vector2, c1?: {a: number, b: number}, c2?:{a: number, b: number}): Vector2 | undefined{
 
-        const lC1 = (c1) ? c1 : lineCoefficients(point1, point2);
-        const lC2 = (c2) ? c2 : lineCoefficients(point3, point4);
+    //     const lC1 = (c1) ? c1 : lineCoefficients(point1, point2);
+    //     const lC2 = (c2) ? c2 : lineCoefficients(point3, point4);
 
-        if(lC1.a == lC2.a){
-            return undefined;
-        }
+    //     if(lC1.a == lC2.a){
+    //         return undefined;
+    //     }
 
-        let x;
-        let y;
+    //     let x;
+    //     let y;
 
-        if(lC1.b == 0){
-            x = point1.x;
-            y = lC2.a * x + lC2.b;
-        } else if (lC2.b == 0){
-            x = point3.x;
-            y = lC1.a * x + lC1.b;
-        } else {
-            x = (lC2.b - lC1.b) / (lC1.a - lC2.a);
-            y = lC1.a * x + lC1.b;
-        }
+    //     if(lC1.b == 0){
+    //         x = point1.x;
+    //         y = lC2.a * x + lC2.b;
+    //     } else if (lC2.b == 0){
+    //         x = point3.x;
+    //         y = lC1.a * x + lC1.b;
+    //     } else {
+    //         x = (lC2.b - lC1.b) / (lC1.a - lC2.a);
+    //         y = lC1.a * x + lC1.b;
+    //     }
 
-        return new Vector2(x, y);
+    //     return new Vector2(x, y);
 
-    }
+    // }
 
+    //TODO - czy potzrebne
     function intersectionTwoLinePointByCoefficients(point1: Vector2, point2: Vector2, lC2:{a: number, b: number}){
 
 
@@ -283,7 +451,7 @@ export namespace EditorMath {
 
     }
 
-
+    //TODO - czy potzrebne
     function intersectionTwoLinePointByCoefficients2(startPointLine1: Vector2, lC1:{a: number, b: number}, startPointLine2: Vector2, lC2:{a: number, b: number}) {
 
         if(lC1.a == lC2.a){
@@ -328,7 +496,7 @@ export namespace EditorMath {
         return new Vector2(x, y);
 
     }
-
+    //TODO - czy potzrebne
     export function intersectionTwoLinePoint2(point1: Vector2, point2: Vector2, point3: Vector2, point4: Vector2): Vector2 | undefined{
 
 
@@ -357,7 +525,7 @@ export namespace EditorMath {
         return undefined;
     }
 
-
+    //TODO - czy potzrebne
     /**
      * 
      * Wzynacza wspolczynniki prostej prostopadlej do prostej o punktach point1 oraz point2 i przechodzacej przez punkt 3
@@ -382,6 +550,7 @@ export namespace EditorMath {
 
     }
 
+    //TESTED
     /**
      * 
      * Wyznacza punk przeciecia sie prostopadłej prostej o wsp point1 i point2 oraz prostej prostopadlej do niej o  wsp w punkcie point3
@@ -391,23 +560,37 @@ export namespace EditorMath {
      * @param point3 
      * @returns 
      */
-    export function  intrestionPendicularLinses(point1: Vector2, point2: Vector2, point3: Vector2): Vector2 {
+    export function intersectionPerpendicularLines(point1: Vector2, point2: Vector2, point3: Vector2, tolerance?:number): Vector2{
+
+        const tol:number = (tolerance != undefined) ? tolerance : TOLERANCE_0_15;
+
+
+        if(equalsDecimals(point1.distanceTo(point2), 0, tol)){
+            throw new Error("Bledne parametry prostej")
+        }
 
         //Rownolegla do X
-        if(equalsDecimals(point1.x, point2.x, TOLERANCE_0_15)) {
+        if(equalsDecimals(point1.x, point2.x, tol)) {
             
             return new Vector2(point1.x, point3.y);
         }
         //Rownolegla do Y
-        if(equalsDecimals(point1.y, point2.y, TOLERANCE_0_15)){
+        if(equalsDecimals(point1.y, point2.y, tol)){
         
             return new Vector2(point3.x, point1.y);
 
         }
 
-        const d = new Vector2().subVectors(point2, point1).divideScalar(point2.distanceTo(point1));
+        // Oblicz wektor kierunkowy prostej i znormalizuj go
+        const d = new Vector2().subVectors(point2, point1).normalize();
+
+        // Oblicz wektor od point1 do point3
         const v = new Vector2().subVectors(point3, point1);
+
+        // Oblicz parametr t (rzutowanie punktu point3 na prostą)
         const t = v.dot(d);
+
+        // Oblicz punkt przecięcia
         return new Vector2().addVectors(point1, d.multiplyScalar(t));
     }
 
@@ -662,8 +845,7 @@ export namespace EditorMath {
 
         const points: Vector2[] = [];
 
-        const pP = intrestionPendicularLinses(point1, point2, circleCenter);
-
+        const pP = intersectionPerpendicularLines(point1, point2, circleCenter);
         const ppCl = circleCenter.distanceTo(pP);
 
         if(radius >= ppCl){
@@ -1308,15 +1490,15 @@ export namespace EditorMath {
      * @param point3 punkt koncowy prostej 3
      * @param radius promien zaokraglenia
      */
-    export function roundingTwoSegments(point1: Vector2, point2: Vector2, point3: Vector2, radius: number): IRoudingParameters | undefined{
+    export function roundingTwoSegments(point1: Vector2, point2: Vector2, point3: Vector2, radius: number): IRoudingParameters | null{
 
         if(equalsDecimals(radius, 0, TOLERANCE_0_15)){
-            return undefined;
+            return null;
         }
 
         let o1: ILineSegmentOffsets;
         let o2: ILineSegmentOffsets;
-        let raidusPoint: Vector2 | undefined;
+        let raidusPoint: Vector2 | null;
 
         o1 = lineSegmentOffset(point1, point2, -radius, AxisType.X);
         o2 = lineSegmentOffset(point2, point3, -radius, AxisType.X);
@@ -1324,7 +1506,6 @@ export namespace EditorMath {
 
         if(raidusPoint && pointInTrianangle(point1, point2, point3, raidusPoint)){
             return calculateRoudingParameters(point1, point2, point3, radius, raidusPoint);
-            
         }
 
         o1 = lineSegmentOffset(point1, point2, radius, AxisType.X);
@@ -1351,7 +1532,7 @@ export namespace EditorMath {
             return calculateRoudingParameters(point1, point2, point3, radius, raidusPoint);
         }
 
-        return undefined;
+        return null;
 
 
     }
@@ -1449,13 +1630,13 @@ export namespace EditorMath {
      * @param arcCenterPoint srodek luku
      * @returns 
      */
-    function calculateRoudingParameters(point1: Vector2, point2: Vector2, point3: Vector2, radius: number, arcCenterPoint: Vector2){
+    function calculateRoudingParameters(point1: Vector2, point2: Vector2, point3: Vector2, radius: number, arcCenterPoint: Vector2):IRoudingParameters | null{
 
         const relativeVector = new Vector2(point2.x + 1000, point2.y);
         const anglePoints = angleBeetweenThreePoints(arcCenterPoint, point2, relativeVector);
         const segmentAngle =  relativeAngleBeetweenThreePoints(point1, point2, point3);
-        const firstArcPoint = intrestionPendicularLinses(point1, point2, arcCenterPoint);
-        const lastArcPoint = intrestionPendicularLinses(point2, point3, arcCenterPoint);
+        const firstArcPoint = intersectionPerpendicularLines(point1, point2, arcCenterPoint);
+        const lastArcPoint = intersectionPerpendicularLines(point2, point3, arcCenterPoint);
 
         let fAngle = anglePoints + segmentAngle/2 + RADIAN_90;
         let sAngle = anglePoints - segmentAngle/2 - RADIAN_90;
