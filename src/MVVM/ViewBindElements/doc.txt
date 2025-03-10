@@ -1,0 +1,51 @@
+Definiowanie
+data-bind = "{typeBind: propertyName, ...argName: arg:Value}"
+
+Mozna definiowac więcej bindów
+data-bind = "{typeBind: propertyName, ...argName: arg:Value}, ...,{typeBind: propertyName, ...argName: arg:Value}"
+
+Można używac tego samego Binda dla róznych elementów HTML
+
+Podstawowe attr - uzywane w kazdym bind;
+
+bindWay - droga bindowania:
+v-mv - tylko zmiana w view jest obserwowana
+vm-v - tylko zmiana w ViewModel jest obserwowana (domyslna)
+both - zmiana w View oraz ViewModel jest oserwowana
+
+Bindy:
+
+innerHtml - zmienia innerHTML 
+    place: - w ktorym miejscu
+        -start - na poczatku
+        -end - na koncu
+
+innerText = zmiana w innerText
+
+visibility - zmiana stylu visibility (true -> visible,  false->hidden)
+
+height - zmiana stylu height; Moze byc number lus string. 
+    Jezeli string to nie uzywa jednostek. 
+    Jezeli number to uzywa jednostek - domyslna px;
+    Args:
+        -unit - jednostka np: px, em, itp (domyslna px)
+width: - zmienia width, analogicznie do height
+
+display - zmiana stylu display
+Jezeli string to podstawia pod styl display = value
+Jezeli boolean - podstawia attr trueVal i falseVal zdefiniowane w attr.
+    Args:
+        -trueVal - styl display dla true (domyslnie block)
+        -falseVal - styl display dla fasle (domyslnie none)
+
+attr - zmian atrybutu
+    Args: 
+        -attrName - nazwa atrybutu
+
+style - zmiana stylu, jezeli jest arg styleName ustawia ten styl, w przypadku braku wstawia zawartosc value do stylu
+    Args:
+        -styleName - nazwa stylu
+
+value - zmiana value
+    Args:
+        -triggerType - wyzwalacz zmiany (change, input), def - change

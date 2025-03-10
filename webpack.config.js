@@ -11,9 +11,9 @@ module.exports = {
         }
       },
     output: {
-        filename: '[name].js',
-        path: path.join(__dirname, './public/js/dist'),
-        publicPath: "public"
+        filename: 'js/[name].js',
+        path: path.resolve(__dirname, 'public'),
+        publicPath: ""
     },
 
     devtool: 'inline-source-map',
@@ -36,6 +36,17 @@ module.exports = {
             {
                 test: /\.css$/, 
                 use: ['style-loader', 'css-loader'],
+            },
+            {
+                test: /\.html$/,
+                use: 'html-loader',
+            },
+            {
+                test: /\.(png|jpg|jpeg|gif|svg)$/i,
+                type: 'asset/resource', // Automatycznie kopiuje pliki do folderu wyjściowego
+                generator: {
+                  filename: './images/[hash][ext][query]', // Określa, gdzie zapisywać obrazy
+                },
             },
         ],
     },

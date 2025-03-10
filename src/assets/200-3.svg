@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   id="Warstwa_2"
+   viewBox="0 0 26.85 26.85"
+   version="1.1"
+   sodipodi:docname="200-3_1.svg"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview310"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="38.249534"
+     inkscape:cx="13.411928"
+     inkscape:cy="13.411928"
+     inkscape:window-width="3840"
+     inkscape:window-height="2054"
+     inkscape:window-x="-11"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g306" />
+  <defs
+     id="defs300">
+    <style
+       id="style298">.cls-1{fill:#fff;}.cls-2{fill:#525e7d;fill-rule:evenodd;}</style>
+  </defs>
+  <g
+     id="g306">
+    <polygon
+       class="cls-1"
+       points="9.2,14.51 9.2,12.35 12.37,12.35 12.37,9.21 14.48,9.21 14.48,12.35 17.66,12.35 17.66,14.51 14.48,14.51 14.48,17.65 12.37,17.65 12.37,14.51 "
+       id="polygon304" />
+  </g>
+</svg>

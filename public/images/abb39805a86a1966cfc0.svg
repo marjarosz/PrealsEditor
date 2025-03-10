@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   id="Warstwa_2"
+   viewBox="0 0 26.85 26.85"
+   version="1.1"
+   sodipodi:docname="200-5_1.svg"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview14"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="38.249534"
+     inkscape:cx="13.411928"
+     inkscape:cy="13.411928"
+     inkscape:window-width="3840"
+     inkscape:window-height="2054"
+     inkscape:window-x="-11"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g10" />
+  <defs
+     id="defs4">
+    <style
+       id="style2">.cls-1{fill:#fff;}.cls-2{fill:#2e2945;fill-rule:evenodd;}</style>
+  </defs>
+  <g
+     id="g10">
+    <path
+       class="cls-1"
+       d="m 6.67,11.59 h 2 c 0.04,-0.48 0.28,-0.96 0.94,-0.96 0.55,0 0.9,0.32 0.9,0.91 0,0.79 -0.67,0.96 -1.37,0.96 H 8.76 v 1.67 h 0.38 c 1.07,0 1.54,0.31 1.54,1.09 0,0.58 -0.35,0.98 -0.98,0.98 -0.76,0 -1.13,-0.46 -1.14,-1.14 H 6.57 c 0.06,1.98 1.38,2.84 3.2,2.84 1.82,0 2.89,-1.06 2.89,-2.53 0,-1.15 -0.6,-1.82 -1.48,-2.11 v -0.05 c 0.6,-0.2 1.32,-0.82 1.32,-1.97 0,-1.32 -1,-2.38 -2.84,-2.38 -1.84,0 -2.92,0.95 -2.99,2.68 v 0 z M 17.22,9.45 h -3.16 v 8.42 h 3.16 c 2.69,0 4.42,-1.72 4.42,-4.21 0,-2.49 -1.73,-4.21 -4.42,-4.21 z m -1.1,6.65 v -4.9 h 0.97 c 1.55,0 2.46,0.91 2.46,2.46 0,1.55 -0.91,2.44 -2.46,2.44 z"
+       id="path8" />
+  </g>
+</svg>

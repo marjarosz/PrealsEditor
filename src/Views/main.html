@@ -1,0 +1,164 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/main.css">  
+    <script type="module" src="../js/main.js"></script>
+    <title>Preals Editor</title>
+</head>
+<body>
+    <div id="editor">
+    <div id="editorTop">
+
+            <div id="editorTopNav">
+                <div class="fNavTopItem navTopItemActive">
+                    <img alt="select" src="http://localhost:9000/images/eb190fb90c0820021855.svg">
+                </div>
+                <div class="navTopItem">
+                    <img alt="move" src="http://localhost:9000/images/d807e1498196777c35d2.svg">
+                </div>
+                <div class="navTopItem">
+                    <img alt="line" src="http://localhost:9000/images/7acb78a535ac8c4891c0.svg">
+                </div>
+                <div class="navTopItem">
+                    <img alt="rectangle" src="http://localhost:9000/images/bb3e78abc86cf69fe33b.svg">
+                </div>
+                <div class="navTopItem">
+                    <img alt="rectangle" src="http://localhost:9000/images/03cf17e0638d9fd7b29f.svg">
+                </div>
+                <div class="navTopItem">
+                    <img alt="rectangle" src="http://localhost:9000/images/67b5139a7fbd112cee08.svg">
+                </div>
+                <div class="navTopItem">
+                    <img alt="rectangle" src="http://localhost:9000/images/0365fb371632b03c6885.svg">
+                </div>
+                <div class="navTopItem">
+                    <img alt="rectangle" src="http://localhost:9000/images/bda33156c3dd11caa44b.svg">
+                </div>
+                <div class="navTopItem">
+                    <img alt="rectangle" src="http://localhost:9000/images/c6fdae958950be9261b3.svg">
+                </div>
+                <div class="navTopItem">
+                    <img alt="rectangle" src="http://localhost:9000/images/7aa24636a719117e5bf4.svg">
+                </div>
+                <div class="navTopItem">
+                    <img alt="rectangle" src="http://localhost:9000/images/f468b603f766a790a2b6.svg">
+                </div>
+                <div class="navTopItem">
+                    <img alt="undo" src="http://localhost:9000/images/e668dc207441dc78a4a4.svg">
+                </div>
+                <div class="navTopItem">
+                    <img alt="redo" src="http://localhost:9000/images/47f7812c1bda83535fef.svg">
+                </div>
+                <div class="navTopItem">
+                    <img alt="delete" src="http://localhost:9000/images/c1e6a45fbdcec565f460.svg">
+                </div>
+                <div class="lNavTopItem">
+                    <img alt="cancel" src="http://localhost:9000/images/dc23953bcdfb79622689.svg">
+                </div>
+            </div>
+            
+            <div id="editorTopScaleNav">
+
+                <div class="topFormItem">
+
+                    <div class="topFormItemName">Skala</div>
+                    <div class="formitemVal formitemValTop">
+                        <span>1:50</span>
+                    </div>
+
+                </div>
+
+                <div class="topFormItem">
+
+                    <div class="topFormItemName">Zoom</div>
+                    <div class="formitemVal formitemValTop">
+                        <span>x10</span>
+                    </div>
+
+                </div>
+
+                <div id="opacityContainer">
+                    <input class="opacityRange" type="range" min="0" max="100" step="1" value="100">
+                    <div class="opacityRangeValue">100%</div>
+                </div>
+
+
+            </div>
+
+    </div>
+    <div id="editorContent">
+        <div id="editorView"></div>
+    </div>
+    <div id="editorBottom">
+        
+        <div id="leftBottomNav">
+            <div class="circleNav">
+                <img alt="cancel" src="http://localhost:9000/images/97b956fee893178790fa.svg">
+            </div>
+            <div class="circleNav">
+                <img alt="cancel" src="http://localhost:9000/images/bfdacd322cd38ccfcae9.svg">
+            </div>
+            <div class="circleNav">
+                <img alt="cancel" src="http://localhost:9000/images/139a03a4035f77b50a1d.svg">
+            </div>
+            <div class="circleNav">
+                <img alt="cancel" src="http://localhost:9000/images/1c8f5100a9a463a7d346.svg">
+            </div>
+            <div class="circleNav">
+                <img alt="cancel" src="http://localhost:9000/images/abb39805a86a1966cfc0.svg">
+            </div>
+            <div class="circleNav"></div>
+            <div class="circleNav">
+                <img alt="cancel" src="http://localhost:9000/images/4c4f5a140958a748e674.svg">
+            </div>
+        </div>
+
+        <div id="planNav">
+            <div id="addPlanBt" class="editorButton">DODAJ PLAN</div>
+            <div id="plansList" class="formitemVal"></div>
+            <div id="editPlanBt">
+                <img alt="cancel" src="http://localhost:9000/images/9b5ced60923ac9454253.svg">
+            </div>
+            
+        </div>
+
+        <div id="rightBottomNav">
+            <div class="circleNav">
+                <img alt="display" src="http://localhost:9000/images/1781e02c3f9e53a27720.svg">
+            </div>
+            <div class="circleNav">
+                <img alt="display" src="http://localhost:9000/images/a936cc6c8ea0dcb9340c.svg">
+            </div>
+            <div class="circleNav">
+                <img alt="display" src="http://localhost:9000/images/54cd476590e0be0ba448.svg">
+            </div>
+            <div class="circleNav">
+                <img alt="display" src="http://localhost:9000/images/e619d95ed10bb5cc9bd4.svg">
+            </div>
+            <div class="circleNav">
+                <img alt="display" src="http://localhost:9000/images/73c05877a69ba4b3ef82.svg">
+            </div>
+            <div class="circleNav">
+                <img alt="display" src="http://localhost:9000/images/5fff20f4917b27f8c321.svg">
+            </div>
+            <div class="circleNav">
+                <img alt="display" src="http://localhost:9000/images/aa97535baa2bf6126a90.svg">
+            </div>
+            <div class="circleNav">
+                <img alt="display" src="http://localhost:9000/images/b80071c35f2809712306.svg">
+            </div>
+            <div class="circleNav">
+                <img alt="display" src="http://localhost:9000/images/0d819c2ccba18ee56b75.svg">
+            </div>
+            <div class="circleNav">
+                <img alt="display" src="http://localhost:9000/images/154f45bdaebb52f4641f.svg">
+            </div>
+            <div class="circleNav">
+                <img alt="display" src="http://localhost:9000/images/56f74602fd52d9529966.svg">
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

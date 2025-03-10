@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   id="Warstwa_2"
+   viewBox="0 0 19.84 19.8"
+   version="1.1"
+   sodipodi:docname="AIBS_ikony_edycja_planu.svg"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview14"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="45.254834"
+     inkscape:cx="9.8773978"
+     inkscape:cy="9.7227182"
+     inkscape:window-width="3840"
+     inkscape:window-height="2054"
+     inkscape:window-x="-11"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="Warstwa_1-2" />
+  <defs
+     id="defs4">
+    <style
+       id="style2">.cls-1{fill:#525e7d;fill-rule:evenodd;}</style>
+  </defs>
+  <g
+     id="Warstwa_1-2">
+    <path
+       class="cls-1"
+       d="m 0,5.62 v 11.89 c 0,0.6 0.34,1.21 0.65,1.52 0.09,0.09 0.18,0.19 0.27,0.27 0.28,0.22 0.77,0.5 1.17,0.5 h 12.4 c 0.42,0 1.12,-0.43 1.42,-0.79 0.32,-0.38 0.63,-0.93 0.63,-1.62 v -6.66 c 0,-0.42 -0.36,-0.81 -0.77,-0.81 -1.09,0 -0.89,1.04 -0.89,1.74 v 4.88 c 0,0.52 0.13,1.63 -0.81,1.63 H 2.44 C 2.04,18.17 1.67,17.8 1.67,17.4 V 5.82 c 0,-0.98 1.02,-0.85 1.59,-0.85 h 4.96 c 0.37,0 0.89,0.07 1.19,-0.05 0.84,-0.33 0.6,-1.61 -0.3,-1.61 H 2.44 C 1.75,3.31 1.11,3.65 0.76,4 0.41,4.35 0,4.97 0,5.64 v 0 z"
+       id="path6"
+       inkscape:highlight-color="#aaaaaa"
+       style="fill:#ffffff;fill-opacity:1" />
+    <path
+       class="cls-1"
+       d="m7.05,12.37c0,.69.77.36,1.28.28l1.74-.35c.48-.08.46-.06.74-.34.39-.4,6.25-6.2,6.38-6.4l-2.9-2.92c-.23.16-5.88,5.86-6.37,6.35-.29.28-.28.23-.37.68-.06.32-.12.58-.18.9-.07.37-.33,1.53-.33,1.8h0Z"
+       id="path8"
+       style="fill:#ffffff;fill-opacity:1" />
+    <path
+       class="cls-1"
+       d="m15.15,1.75l2.92,2.93,1.07-1.05c.4-.4.65-.87.71-1.37v-.42c-.02-.22-.09-.45-.19-.68-.05-.1-.11-.19-.18-.29-.74-1.06-2.22-1.21-3.24-.19l-1.08,1.06h0Z"
+       id="path10"
+       style="fill:#ffffff;fill-opacity:1" />
+  </g>
+</svg>
