@@ -68,9 +68,7 @@ body {
     background-color: #13171a;
 }
 
-.navTopItemActive {
-    background-color: #13171a;
-}
+
 
 .fNavTopItem img, .navTopItem img, .lNavTopItem img {
     max-width: 18px;
@@ -212,4 +210,17 @@ body {
 #editPlanBt img{
 
     filter: brightness(0) saturate(100%) invert(0%) sepia(96%) saturate(7485%) hue-rotate(111deg) brightness(89%) contrast(98%);
+}
+
+.navTopItemActive {
+    background-color: #13171a;
+}
+
+.navLock {
+    background-color: #b2b2b2;
+    cursor:default;
+}
+
+.navLock:hover {
+    background-color: #b2b2b2;
 }

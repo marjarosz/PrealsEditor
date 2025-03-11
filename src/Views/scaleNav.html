@@ -2,7 +2,7 @@
 
     <div class="topFormItemName">Skala</div>
     <div class="formitemVal formitemValTop">
-        <span>1:50</span>
+        <span data-bind="{innerText: currentScale}"></span>
     </div>
 
 </div>
@@ -11,12 +11,12 @@
 
     <div class="topFormItemName">Zoom</div>
     <div class="formitemVal formitemValTop">
-        <span>x10</span>
+        <span data-bind="{innerText: currentZoom}"></span>
     </div>
 
 </div>
 
 <div id="opacityContainer">
-    <input class="opacityRange" type="range" min="0" max="100" step="1" value="100">
-    <div class="opacityRangeValue">100%</div>
+    <input class="opacityRange" type="range" min="0" max="100" step="1" value="100" data-bind="{value: opacityValue, bindWay: both}">
+    <div class="opacityRangeValue" data-bind="{innerText: opacityValuePercent}"></div>
 </div>

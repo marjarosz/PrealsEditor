@@ -42,7 +42,7 @@ export interface IViewModel extends IViewModelView{
  */
 type ViewModelProperty = {
     value: unknown
-    changeCallback?: (value: unknown)=>void 
+    changeCallback?: (value: unknown, propertyKey: string)=>void 
 }
 
 
@@ -110,7 +110,7 @@ export class ViewModel implements IViewModel, IViewModelView{
            
             prop.value = value;
             if(prop.changeCallback && callbackExecute){
-                prop.changeCallback(prop.value);
+                prop.changeCallback(prop.value, name);
             }
 
             /**

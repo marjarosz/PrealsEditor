@@ -58,7 +58,7 @@ export class ViewModelMain extends ViewModel implements IViewModelMain {
         //Scale navigation
         const scaleViewHtml = document.createElement("template");
         scaleViewHtml.innerHTML = scaleNavTemplat;
-        this._scaleNavigationVM = viewModelFactory.getViewModel("ViewModelToolsNavigation");
+        this._scaleNavigationVM = viewModelFactory.getViewModel("ViewModelScaleNavigation");
         this.scaleNavigation = new View(scaleViewHtml, this._scaleNavigationVM);
 
         //Plan navigation
