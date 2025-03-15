@@ -1,3 +1,4 @@
+import { IEditor } from "../editor/editor";
 import { Command, ICommand } from "../MVVM/command";
 import { IViewModel, ViewModel } from "../MVVM/viewModel";
 
@@ -25,8 +26,9 @@ export class ViewModelBottomNavigation extends ViewModel implements IViewModel {
         downloadCommand:{className: 'downloadClass', isLock: false, isSelectable: false}
     }
 
-    constructor(){
+    constructor(protected editor:IEditor){
         super();
+
 
         for(const key in this._bottomCommands){
 

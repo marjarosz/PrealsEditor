@@ -1,5 +1,7 @@
+import { IEditor } from "../editor/editor";
 import { IViewModel, ViewModel } from "../MVVM/viewModel";
 import { propChange } from "../MVVM/viewModelDecorators";
+import { EditorMath } from "../Utility/editorMath";
 
 export interface IViewModelScaleNavigation extends IViewModel {
 
@@ -19,13 +21,16 @@ export class ViewModelScaleNavigation extends ViewModel implements IViewModelSca
     @propChange()
     public opacityValuePercent: string;
 
-    constructor(){
+    constructor(private editor: IEditor){
         super();
 
         this.currentScale = "1:25";
-        this.currentZoom = "x5";
+        this.currentZoom = "x5" + EditorMath.numberFixed(this.editor.currentZoom, 0);
         this.opacityValue = "90";
         this.opacityValuePercent = "90%";
+        
+        this.editor.subscribeZoomChange(this.zoomChanged.bind(this));
+       
     }
 
     public opacityChange(target:object, propertyKey:string){
@@ -36,4 +41,10 @@ export class ViewModelScaleNavigation extends ViewModel implements IViewModelSca
 
     }
 
+
+    private zoomChanged(currentZoom: number) {
+
+        this.currentZoom = "x"+EditorMath.numberFixed(currentZoom, 0);
+
+    }
 }

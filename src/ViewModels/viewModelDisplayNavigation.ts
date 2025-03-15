@@ -1,3 +1,4 @@
+import { IEditor } from "../editor/editor";
 import { Command, ICommand } from "../MVVM/command";
 import { IViewModel, ViewModel } from "../MVVM/viewModel";
 
@@ -28,13 +29,22 @@ export class ViewModelDisplayNavigation extends ViewModel implements IViewModelD
     };
 
 
-    constructor(){
+    constructor(protected editor:IEditor){
         super();
 
         for(const key in this._displayCommands){
             const com:IDisplayCommandInfo = this._displayCommands[key];
             this.registerProperty(com.className, (com.isEnabled) ? "navTopItemActive" : "");
             this.registerCommand(key, new Command(this.setDisplayCommand.bind(this)));
+        }
+
+        /**
+         * Wlacz wylacz siatke callback
+         */
+        this._displayCommands['gridDisplayCommand'].clickCallback = ()=>{
+          
+            const isEG = !this.editor.enableGrid;
+            this.editor.enableDisableGrid(isEG);
         }
     }
 
@@ -45,6 +55,10 @@ export class ViewModelDisplayNavigation extends ViewModel implements IViewModelD
         com.isEnabled = !com.isEnabled;
         this.setPropertyValueChange(com.className, (com.isEnabled) ? "navTopItemActive" : "");
 
+        if(com.clickCallback){
+            com.clickCallback();
+        }
+        
         console.log(command.commandData.commandName)
 
     }

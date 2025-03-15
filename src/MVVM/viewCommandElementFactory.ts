@@ -6,6 +6,7 @@ import ViewCommandElementMouseInOut from './ViewCommandElements/viewCommandEleme
 import ViewCommandElementChange from './ViewCommandElements/viewCommandElmeentChange';
 import ViewCommandElementInput from './ViewCommandElements/viewCommandElementInput';
 import ViewCommandElementFocusout from './ViewCommandElements/viewCommandElementFocusout';
+import ViewCommandElementResize from './ViewCommandElements/viewCommandElementResize';
 
 export class ViewCommandElementFactory {
 
@@ -15,7 +16,8 @@ export class ViewCommandElementFactory {
         mouseInOut: (element, name, argList, eventTarget) =>{return new ViewCommandElementMouseInOut(element, name, argList, eventTarget)},
         change: (element, name, argList, eventTarget) =>{return new ViewCommandElementChange(element, name, argList, eventTarget)},
         input: (element, name, argList, eventTarget) =>{return new ViewCommandElementInput(element, name, argList, eventTarget)},
-        focusout: (element, name, argList, eventTarget) =>{return new ViewCommandElementFocusout(element, name, argList, eventTarget)}
+        focusout: (element, name, argList, eventTarget) =>{return new ViewCommandElementFocusout(element, name, argList, eventTarget)},
+        resize: (element, name, argList, eventTarget) =>{return new ViewCommandElementResize(element, name, argList, eventTarget)}
     };
 
 
