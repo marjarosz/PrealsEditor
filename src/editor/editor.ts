@@ -34,12 +34,19 @@ export interface IEditor {
 
     readonly currentZoom: number;
 
+    readonly zoomInAvailable: boolean;
+
+    readonly zoomOutAvailable: boolean;
+
     setNewSize(newWidth: number, newHeight: number):void;
     
     enableDisableGrid(enable:boolean):boolean;
 
     subscribeZoomChange(callback:(currentZoom:number)=>void):void;
     unsubscribeZoomChange(callback:(currentZoom:number)=>void):void;
+
+    zoomIn():void;
+    zoomOut():void;
 
     render():void;
 }
@@ -63,6 +70,14 @@ export class Editor implements IEditor{
         return this.camera.zoom;
     }
 
+    get zoomInAvailable(){
+        return (this.camera.zoom >= this._maxZoom) ? false: true;
+    }
+
+    get zoomOutAvailable(){
+        return (this.camera.zoom <=this._minZoom) ? false: true;
+    }
+
     public resolution: Vector2;
     private startZoom = 1000;
     private _maxZoom: number;
@@ -71,6 +86,7 @@ export class Editor implements IEditor{
     private _grid?: EditorGrid;
     private _lastCameraValues:ILastCameraValues;
     private _enableGrid:boolean = true;
+    private _cameraInOutMulti: number = 1.25;
 
     private _zoomChangeCallbacks: ICallbackMenager<(currentZoom: number)=>void> = new CallbackMenager<(currentZoom: number)=>void>();
 
@@ -220,6 +236,30 @@ export class Editor implements IEditor{
     }
     unsubscribeZoomChange(callback:(currentZoom:number)=>void):void {
         this._zoomChangeCallbacks.removeCallback(callback);
+    }
+
+
+    zoomIn(): void {
+
+        if(this.zoomInAvailable) {
+             const newZoom = this.camera.zoom * this._cameraInOutMulti;
+             const setZoom = (newZoom < this.control.maxZoom) ? newZoom : this.control.maxZoom;
+             this.camera.zoom = setZoom ;
+             this.threeInitializer.updateMatrixCamera(this.camera);
+             this.controlChange();
+        }
+ 
+    }
+ 
+    zoomOut(): void {
+ 
+         if(this.zoomOutAvailable){
+             const newZoom = this.camera.zoom / this._cameraInOutMulti;
+             const setZoom = (newZoom > this.control.minZoom) ? newZoom : this.control.minZoom;
+             this.camera.zoom = newZoom;
+             this.threeInitializer.updateMatrixCamera(this.camera);
+             this.controlChange();
+         }
     }
 
 }

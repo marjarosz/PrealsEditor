@@ -37,6 +37,15 @@ export class ViewModelBottomNavigation extends ViewModel implements IViewModel {
             this.registerCommand(key, new Command(this.bottomCommand.bind(this)));
         }
 
+        this.editor.subscribeZoomChange(this.zoomChanged.bind(this));
+        this._bottomCommands["zoomInCommand"].clickCallback = ()=>{
+            this.editor.zoomIn();
+        }
+
+        this._bottomCommands['zoomOutCommand'].clickCallback = ()=>{
+            this.editor.zoomOut();
+        }
+
     }
 
     private bottomCommand(command: ICommand){
@@ -47,7 +56,21 @@ export class ViewModelBottomNavigation extends ViewModel implements IViewModel {
             return;
         }
 
+        if(com.clickCallback) {
+            com.clickCallback();
+        }
+
         console.log(command.commandData.commandName);
+
+    }
+
+    private zoomChanged(currentZoom: number){
+
+        this._bottomCommands["zoomInCommand"].isLock = !this.editor.zoomInAvailable;
+        this._bottomCommands["zoomOutCommand"].isLock = !this.editor.zoomOutAvailable;
+
+        this.setPropertyValueChange(this._bottomCommands["zoomInCommand"].className, (this.editor.zoomInAvailable) ? "" : "navLock");
+        this.setPropertyValueChange(this._bottomCommands["zoomOutCommand"].className, (this.editor.zoomOutAvailable)? "" : "navLock");
 
     }
 
