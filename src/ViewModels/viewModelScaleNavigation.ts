@@ -24,7 +24,7 @@ export class ViewModelScaleNavigation extends ViewModel implements IViewModelSca
     constructor(private editor: IEditor){
         super();
 
-        this.currentScale = "1:25";
+        this.currentScale = "1:" + this.editor.scale;
         this.currentZoom = "x5" + EditorMath.numberFixed(this.editor.currentZoom, 0);
         this.opacityValue = "90";
         this.opacityValuePercent = "90%";

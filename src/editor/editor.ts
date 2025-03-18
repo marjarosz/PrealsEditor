@@ -3,6 +3,10 @@ import { IThreeInitializer } from "./threeInitializer";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { EditorGrid } from "./editorGrid";
 import { CallbackMenager, ICallbackMenager } from "../Utility/callbackMenager";
+import { EditorRaycaster, IEditorRaycaster } from "./editorRaycaster";
+import { EditorLayer, IEditorLayer } from "./Layers/editorLayer";
+import { IEditorDrawLayer } from "./Layers/editorDrawLayer";
+
 
 interface ILastCameraValues {
     zoom: number;
@@ -26,17 +30,42 @@ export interface IEditor {
      * Renderer
      */
     readonly renderer: WebGLRenderer;
+
+    /**
+     * Control
+     */
+    readonly control: OrbitControls;
     
+    /**
+     * Raycaster
+     */
+    readonly raycaster: IEditorRaycaster;
     /**
      *Czy siatka jest wlaczona
      */
     readonly enableGrid: boolean;
 
+    /**
+     * Aktualny zoom
+     */
     readonly currentZoom: number;
 
+    /**
+     * Czy mozliwe powiekszenie
+     */
     readonly zoomInAvailable: boolean;
 
+    /**
+     * Czy mozliwe pomniejszenie
+     */
     readonly zoomOutAvailable: boolean;
+
+    /**
+     * Skala
+     */
+    readonly scale:number;
+
+    resolution: Vector2;
 
     setNewSize(newWidth: number, newHeight: number):void;
     
@@ -62,6 +91,8 @@ export class Editor implements IEditor{
 
     public readonly control: OrbitControls;
 
+    public readonly raycaster: IEditorRaycaster;
+
     get enableGrid(){
         return this._enableGrid;
     }
@@ -78,17 +109,34 @@ export class Editor implements IEditor{
         return (this.camera.zoom <=this._minZoom) ? false: true;
     }
 
+    get scale(){
+        return this._scale;
+    }
+
     public resolution: Vector2;
     private startZoom = 1000;
     private _maxZoom: number;
     private _minZoom: number;
     private _scale: number = 100;
     private _grid?: EditorGrid;
+
+
     private _lastCameraValues:ILastCameraValues;
     private _enableGrid:boolean = true;
     private _cameraInOutMulti: number = 1.25;
-
+    private _currentMousePositionX: number = 0;
+    private _currentMousePositionY: number = 0;
     private _zoomChangeCallbacks: ICallbackMenager<(currentZoom: number)=>void> = new CallbackMenager<(currentZoom: number)=>void>();
+    private _mouseInEditor = false;
+    private _layers: IEditorLayer[] = [];
+
+    /**
+     * Eventy przypisywane do akcji
+     */
+    private currentClickEvent: (e:Event) =>void = ()=>{};
+    private currentOnPointerEvent: (e: PointerEvent)=>void = ()=>{};
+    private currentMouseUpEvent: (e: MouseEvent)=>void=()=>{};
+    private currentMouseDownEvent: (e: MouseEvent)=>void=()=>{};
 
    // public readonly raycaster: IEditorRaycaster;
 
@@ -103,9 +151,40 @@ export class Editor implements IEditor{
 
         this.control = threeInitializer.controlInit(this.camera, this.renderer.domElement, this._minZoom, this._maxZoom , false);
        
+        /**
+         * Eventy
+         */
         this.control.addEventListener('change', this.controlChange.bind(this));
 
+        this.renderer.domElement.addEventListener('pointermove', 
+            (e)=>{this.onPointerEvent(e)}
+        );
+        this.renderer.domElement.addEventListener('click', 
+            (e)=>{this.currentClickEvent(e)}
+        );
+
+
+        this.renderer.domElement.addEventListener('mousedown', 
+            (e)=>{this.mouseDownEvent(e)}
+        );
+        this.renderer.domElement.addEventListener('mouseup', 
+            (e)=>{this.mouseUpEvent(e)}
+        );
+        
+        this.renderer.domElement.addEventListener('dblclick', 
+            (e)=>{}
+        );
+        this.renderer.domElement.addEventListener('mouseleave', 
+            (e)=>{this._mouseInEditor = false}
+        );
+        this.renderer.domElement.addEventListener('mouseenter', 
+            (e)=>{this._mouseInEditor = true}
+        );
+
         this.resolution = new Vector2(width, height);
+
+        this.raycaster = new EditorRaycaster(this.renderer.domElement, this.camera);
+        this.raycaster.updateReycaster();
 
         this.createGrid();
 
@@ -117,6 +196,7 @@ export class Editor implements IEditor{
 
         this.render();
        
+        
 
     }
 
@@ -183,6 +263,7 @@ export class Editor implements IEditor{
         this._grid = new EditorGrid(this.camera, 0xc7c7c7, 1, this._scale);
         this._grid.position.z = 0;
         this.scene.add(this._grid);
+
     }
 
     private removeGrid(){
@@ -227,6 +308,8 @@ export class Editor implements IEditor{
 
     private zoomChanged(){
 
+
+
         this._zoomChangeCallbacks.callCallback(this.camera.zoom);
 
     }
@@ -261,5 +344,69 @@ export class Editor implements IEditor{
              this.controlChange();
          }
     }
+
+   private onPointerEvent(event: PointerEvent){
+
+        this.setRaycaterPoint(event);
+        this.currentOnPointerEvent(event);
+
+   }
+
+   private mouseUpEvent(event: MouseEvent){
+        
+        if(event.button == 2) {
+            this.render();
+        }
+        this.currentMouseUpEvent(event);
+    }
+
+    private mouseDownEvent(event: MouseEvent){
+   
+        this.currentMouseDownEvent(event);
+    }
+
+
+   private setRaycaterPoint(event : PointerEvent | DragEvent){
+
+        this._currentMousePositionX = event.offsetX;
+        this._currentMousePositionY = event.offsetY;
+
+        this.raycaster.updatePointer(event);
+    }
+
+    private cancelPanning(runCallback: boolean){
+        // if(this.control.leftMousePannningEnable) {
+        //     this.control.leftMousePannningEnable = false;
+        //     if(runCallback){
+        //         for(const callback of this.cancelActionCallback){
+        //             callback();
+        //         }
+                
+        //     }
+
+        //     this.control.touches.ONE = TOUCH.ROTATE;
+        //     this.control.touches.TWO = TOUCH.DOLLY_PAN;
+        // }
+   }
+
+   panningAction(): void {
+        
+        // if(this._selectedLayer) {
+        //     this._selectedLayer.removeSelectedShape();
+        // }
+
+        // this.cancelAction(false);
+        // this.control.leftMousePannningEnable = true;
+        // this.control.touches.ONE = TOUCH.PAN;
+        // this.control.touches.TWO = TOUCH.DOLLY_ROTATE;
+
+   }
+
+   private createLayers(){
+
+        const drawLayer:IEditorDrawLayer = new EditorLayer();
+        this._layers.push(drawLayer);
+
+   }
 
 }

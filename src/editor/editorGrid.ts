@@ -1,4 +1,4 @@
-import { BufferGeometry, Color, Float32BufferAttribute, Line, LineBasicMaterial, OrthographicCamera, PerspectiveCamera, Vector3 } from "three";
+import { BufferGeometry, Color, Float32BufferAttribute, Line, LineBasicMaterial, LineDashedMaterial, OrthographicCamera, PerspectiveCamera, Vector3 } from "three";
 import { EditorMath } from "../Utility/editorMath";
 import { EditorUtility } from "../Utility/editorUtility";
 
@@ -19,6 +19,8 @@ export class EditorGrid extends Line{
         const geometry = new BufferGeometry();
 
         const material = new LineBasicMaterial( { vertexColors: true, toneMapped: false, transparent: true, depthTest: false } );
+
+       
 
         const cameraPos = EditorUtility.getCamViewMinMaxPoints(camera);
 
