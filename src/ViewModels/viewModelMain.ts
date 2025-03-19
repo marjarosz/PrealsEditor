@@ -65,7 +65,7 @@ export class ViewModelMain extends ViewModel implements IViewModelMain {
         //Tools navigation
         const toolsViewHtml = document.createElement("template");
         toolsViewHtml.innerHTML = toolsNavTemplate;
-        this._toolsNavigationVM = viewModelFactory.getViewModel("ViewModelToolsNavigation");
+        this._toolsNavigationVM = viewModelFactory.getViewModel("ViewModelToolsNavigation", editor);
         this.toolsNavigation = new View(toolsViewHtml, this._toolsNavigationVM);
 
         //Scale navigation

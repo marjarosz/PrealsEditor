@@ -6,6 +6,8 @@ import { CallbackMenager, ICallbackMenager } from "../Utility/callbackMenager";
 import { EditorRaycaster, IEditorRaycaster } from "./editorRaycaster";
 import { EditorLayer, IEditorLayer } from "./Layers/editorLayer";
 import { IEditorDrawLayer } from "./Layers/editorDrawLayer";
+import { ActionType, IEditorAction } from "./Action/editorAction";
+import { EditorActionDrawFactory, EditorDrawType, IEditorActionDrawFactory } from "./Action/editorActionDrawFactory";
 
 
 interface ILastCameraValues {
@@ -67,17 +69,46 @@ export interface IEditor {
 
     resolution: Vector2;
 
+
+
     setNewSize(newWidth: number, newHeight: number):void;
     
     enableDisableGrid(enable:boolean):boolean;
 
+
+
+    /**
+     * Powieksz
+     */
+    zoomIn():void;
+
+    /**
+     * Pomniejsz
+     */
+    zoomOut():void;
+
+    /**
+     * Anuluje akcje jezeli jest wybrana
+     */
+    cancelAction(runCallbacks?: boolean): void;
+
+    /**
+     * Rozpocznij rysowanie
+     * @param drawType - typ rysowania
+     */
+    startDraw(drawType: EditorDrawType):void;
+    
+    render():void;
+
+    /***Callbacks */
+
+
     subscribeZoomChange(callback:(currentZoom:number)=>void):void;
     unsubscribeZoomChange(callback:(currentZoom:number)=>void):void;
 
-    zoomIn():void;
-    zoomOut():void;
+    subscribeCancelAction(callback: (canceledActionType:ActionType)=>void):void;
+    unsubscribeCancelAction(callback: (canceledActionType:ActionType)=>void):void;
 
-    render():void;
 }
 
 export class Editor implements IEditor{
@@ -119,16 +150,17 @@ export class Editor implements IEditor{
     private _minZoom: number;
     private _scale: number = 100;
     private _grid?: EditorGrid;
-
+    private _currentAction: IEditorAction | undefined;
 
     private _lastCameraValues:ILastCameraValues;
     private _enableGrid:boolean = true;
     private _cameraInOutMulti: number = 1.25;
     private _currentMousePositionX: number = 0;
     private _currentMousePositionY: number = 0;
-    private _zoomChangeCallbacks: ICallbackMenager<(currentZoom: number)=>void> = new CallbackMenager<(currentZoom: number)=>void>();
+    
     private _mouseInEditor = false;
     private _layers: IEditorLayer[] = [];
+    private _actionDrawFactory: IEditorActionDrawFactory = new EditorActionDrawFactory();
 
     /**
      * Eventy przypisywane do akcji
@@ -139,6 +171,13 @@ export class Editor implements IEditor{
     private currentMouseDownEvent: (e: MouseEvent)=>void=()=>{};
 
    // public readonly raycaster: IEditorRaycaster;
+
+    /**
+     * Callbacks
+     */
+    private _zoomChangeCallbacks: ICallbackMenager<(currentZoom: number)=>void> = new CallbackMenager<(currentZoom: number)=>void>();
+    private _cancelActionCallbacks: ICallbackMenager<(canceledActionType: ActionType)=>void> = new CallbackMenager<(canceledActionType: ActionType)=>void>();
+
 
     constructor (private threeInitializer: IThreeInitializer, private width: number, private height: number){
 
@@ -187,6 +226,7 @@ export class Editor implements IEditor{
         this.raycaster.updateReycaster();
 
         this.createGrid();
+        this.createLayers();
 
         this._lastCameraValues = {
             zoom: this.camera.zoom,
@@ -196,7 +236,7 @@ export class Editor implements IEditor{
 
         this.render();
        
-        
+        console.log(this);
 
     }
 
@@ -406,6 +446,42 @@ export class Editor implements IEditor{
 
         const drawLayer:IEditorDrawLayer = new EditorLayer();
         this._layers.push(drawLayer);
+        this.scene.add(drawLayer.group);
+
+   }
+
+
+   public cancelAction(runCallback: boolean = false){
+
+        console.log("CANCEL ACTION")
+        if(this._currentAction) {
+
+            const currentType = this._currentAction.actionType;
+            this._currentAction.cancel();
+            this._currentAction = undefined;
+
+            if(runCallback) {
+                this._cancelActionCallbacks.callCallback(currentType);
+            }
+        }
+        
+
+   }
+
+   public startDraw(drawType: EditorDrawType){
+
+        
+        console.log(drawType);
+
+   }
+
+   subscribeCancelAction(callback: (canceledActionType:ActionType)=>void):void{
+
+        this._cancelActionCallbacks.addCallback(callback);
+   }
+   unsubscribeCancelAction(callback: (canceledActionType:ActionType)=>void):void {
+        
+        this._cancelActionCallbacks.removeCallback(callback);
 
    }
 

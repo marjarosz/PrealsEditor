@@ -1,3 +1,5 @@
+import { EditorDrawType } from "../editor/Action/editorActionDrawFactory";
+import { IEditor } from "../editor/editor";
 import { Command, ICommand } from "../MVVM/command";
 import { IViewModel, ViewModel } from "../MVVM/viewModel";
 import { propChange } from "../MVVM/viewModelDecorators";
@@ -39,7 +41,7 @@ export class ViewModelToolsNavigation extends ViewModel implements IViewModelToo
     private _currentToolsCommand: string = "";
     private _defaultTools: string = "selectCommand";
 
-    constructor(){
+    constructor(private editor:IEditor){
         super();
 
         let activeClass = "navTopItemActive";
@@ -54,6 +56,41 @@ export class ViewModelToolsNavigation extends ViewModel implements IViewModelToo
         this._currentToolsCommand = this._defaultTools;
 
         this._toolsCommands["cancelCommand"].clickCallback = this.cancelCommand.bind(this);
+
+        /**
+         * Rysowanie dowolnego ksztaltu
+         */
+        this._toolsCommands["freeCommand"].clickCallback = ()=>{
+            this.editor.startDraw(EditorDrawType.free);
+        }
+
+        /**
+         * Rysowanie prostokata z naroznika
+         */
+        this._toolsCommands["rectangleCommand"].clickCallback = ()=>{
+            this.editor.startDraw(EditorDrawType.rectangleCorner);
+        }
+
+        /**
+         * Rysowanie prostokata ze srodka
+         */
+        this._toolsCommands["rectangleCenterCommand"].clickCallback = ()=>{
+            this.editor.startDraw(EditorDrawType.rectangleCenter);
+        }
+
+        /**
+         * Okrag z naroznika
+         */
+        this._toolsCommands["circleCommand"].clickCallback = ()=>{
+            this.editor.startDraw(EditorDrawType.circleCorner);
+        }
+
+        /**
+         * Okrag ze srodka
+         */
+        this._toolsCommands["circleCenterCommand"].clickCallback = ()=> {
+            this.editor.startDraw(EditorDrawType.circleCenter);
+        }
 
     }
 
@@ -74,6 +111,8 @@ export class ViewModelToolsNavigation extends ViewModel implements IViewModelToo
 
 
     private cancelCommand(){
+
+        this.editor.cancelAction();
 
         if(this._currentToolsCommand == "selectCommand"){
             return;
