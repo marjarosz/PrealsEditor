@@ -1,3 +1,8 @@
+import { Vector2 } from "three";
+import { IEditorRaycaster } from "../editorRaycaster";
+import { IEditorLayer } from "../Layers/editorLayer";
+import { IEditorDraw } from "../Draws/editorDraw";
+import { EditorDrawFree } from "../Draws/editorDrawFree";
 
 export enum EditorDrawType  {
     
@@ -13,10 +18,13 @@ export enum EditorDrawType  {
 
 export interface IEditorActionDrawFactory {
 
+    getEditorDrawType(type: EditorDrawType, raycaster: IEditorRaycaster, layer: IEditorLayer, resolution: Vector2, scale: number): IEditorDraw
 
 }
 
-export class EditorActionDrawFactory {
+export class EditorActionDrawFactory implements IEditorActionDrawFactory{
 
-
+    getEditorDrawType(type: EditorDrawType, raycaster: IEditorRaycaster, layer: IEditorLayer, resolution: Vector2, scale: number): IEditorDraw{
+        return new EditorDrawFree(raycaster, layer, resolution,scale);
+    }
 }

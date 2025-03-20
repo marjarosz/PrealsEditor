@@ -126,6 +126,7 @@ export class EditorRaycaster implements IEditorRaycaster{
         //     Sprite: {threshold: 0.1}
         // }
 
+
         this.raycaster.setFromCamera(this._pointer, this.camera);
     }
 

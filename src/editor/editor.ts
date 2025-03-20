@@ -5,9 +5,10 @@ import { EditorGrid } from "./editorGrid";
 import { CallbackMenager, ICallbackMenager } from "../Utility/callbackMenager";
 import { EditorRaycaster, IEditorRaycaster } from "./editorRaycaster";
 import { EditorLayer, IEditorLayer } from "./Layers/editorLayer";
-import { IEditorDrawLayer } from "./Layers/editorDrawLayer";
+import { EditorDrawLayer, IEditorDrawLayer } from "./Layers/editorDrawLayer";
 import { ActionType, IEditorAction } from "./Action/editorAction";
 import { EditorActionDrawFactory, EditorDrawType, IEditorActionDrawFactory } from "./Action/editorActionDrawFactory";
+import { EditorActionDraw } from "./Action/editorActionDraw";
 
 
 interface ILastCameraValues {
@@ -160,12 +161,13 @@ export class Editor implements IEditor{
     
     private _mouseInEditor = false;
     private _layers: IEditorLayer[] = [];
+    private _currentLayer: IEditorLayer | undefined;
     private _actionDrawFactory: IEditorActionDrawFactory = new EditorActionDrawFactory();
 
     /**
      * Eventy przypisywane do akcji
      */
-    private currentClickEvent: (e:Event) =>void = ()=>{};
+    private currentClickEvent: (e:MouseEvent) =>void = ()=>{};
     private currentOnPointerEvent: (e: PointerEvent)=>void = ()=>{};
     private currentMouseUpEvent: (e: MouseEvent)=>void=()=>{};
     private currentMouseDownEvent: (e: MouseEvent)=>void=()=>{};
@@ -236,7 +238,7 @@ export class Editor implements IEditor{
 
         this.render();
        
-        console.log(this);
+    
 
     }
 
@@ -410,8 +412,9 @@ export class Editor implements IEditor{
 
         this._currentMousePositionX = event.offsetX;
         this._currentMousePositionY = event.offsetY;
-
         this.raycaster.updatePointer(event);
+      
+
     }
 
     private cancelPanning(runCallback: boolean){
@@ -444,9 +447,13 @@ export class Editor implements IEditor{
 
    private createLayers(){
 
-        const drawLayer:IEditorDrawLayer = new EditorLayer();
+        const drawLayer:IEditorDrawLayer = new EditorDrawLayer();
         this._layers.push(drawLayer);
         this.scene.add(drawLayer.group);
+
+        //TODO - tymczasowo
+        this._currentLayer = drawLayer;
+        
 
    }
 
@@ -463,6 +470,7 @@ export class Editor implements IEditor{
             if(runCallback) {
                 this._cancelActionCallbacks.callCallback(currentType);
             }
+            this.render();
         }
         
 
@@ -470,8 +478,19 @@ export class Editor implements IEditor{
 
    public startDraw(drawType: EditorDrawType){
 
-        
-        console.log(drawType);
+        this.cancelAction();
+
+        if(this._currentLayer == undefined){
+            return;
+        } 
+
+        const draw = this._actionDrawFactory.getEditorDrawType(EditorDrawType.free, this.raycaster, this._currentLayer, this.resolution, this._scale);
+        this._currentAction = new EditorActionDraw(draw, this.raycaster, this._currentLayer, this.resolution);
+        this._currentAction.zoomChange(this.camera.zoom);
+        this.setActionEvent();
+        this._currentAction.start();
+
+        console.log(this._currentAction);
 
    }
 
@@ -482,6 +501,18 @@ export class Editor implements IEditor{
    unsubscribeCancelAction(callback: (canceledActionType:ActionType)=>void):void {
         
         this._cancelActionCallbacks.removeCallback(callback);
+
+   }
+
+   private setActionEvent(){
+
+        if(this._currentAction == undefined){
+            return;
+        } 
+
+        this._currentAction.rendererNeedUpdateCallback = this.render.bind(this);
+        this.currentClickEvent = this._currentAction.clickEvent.bind(this._currentAction);
+        this.currentOnPointerEvent = this._currentAction.onPointerEvent.bind(this._currentAction);
 
    }
 
