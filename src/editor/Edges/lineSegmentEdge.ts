@@ -115,6 +115,9 @@ export class LineSegmentEdge extends EdgeBase implements ILineSegmentEdge{
 
   
     protected updateLine(sPoint: Vector2, ePoint: Vector2){
+
+        const parent = this._lineObject.parent;
+
         this._lineObject.removeFromParent();
         Object3DUtility.disposeObject(this._lineObject);
         this._lineObject = this.getLineGeometry(sPoint, ePoint);
@@ -126,6 +129,11 @@ export class LineSegmentEdge extends EdgeBase implements ILineSegmentEdge{
         this._centerPoint.setY(newCenter.y);
         this._lineObject.renderOrder = this.renderOrder;
         this.updateAngle();
+
+        if(parent) {
+            parent.add(this._lineObject);
+            
+        }
         
     }
     

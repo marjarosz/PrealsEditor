@@ -335,6 +335,7 @@ export  class EdgeBase extends DrawObject{
 
         this.material.resolution.x = resolution.x;
         this.material.resolution.y = resolution.y;
+        this.updateModel(resolution);
     }
 
     

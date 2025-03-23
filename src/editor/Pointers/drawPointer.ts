@@ -92,4 +92,6 @@ export interface IDrawPointer extends IDrawObject{
      */
     clone(): IDrawPointer
 
+    updateResolution(resolution:Vector2):void;
+
 }

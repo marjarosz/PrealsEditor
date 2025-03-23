@@ -291,7 +291,13 @@ export class Editor implements IEditor{
 
         this.createGrid();
 
+        if(this._currentAction){
+            this._currentAction.resolutionChange(this.resolution);
+        }
+
         this.render();
+
+      
     }
 
 

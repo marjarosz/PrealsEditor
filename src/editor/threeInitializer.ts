@@ -1,4 +1,4 @@
-import { WebGLRenderer, Scene, OrthographicCamera, Color, Camera} from "three";
+import { WebGLRenderer, Scene, OrthographicCamera, Color, Camera, SRGBColorSpace} from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 
 //import {OrbitControls} from '../js/editorControls'
@@ -90,8 +90,8 @@ export class ThreeInitializer implements IThreeInitializer {
         
         renderer.setPixelRatio( window.devicePixelRatio);
        // renderer.toneMapping =ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 0.7;
-        //renderer.outputEncoding = sRGBEncoding;
+       // renderer.toneMappingExposure = 0.7;
+        renderer.outputColorSpace = SRGBColorSpace;
         this.setRendererSize(renderer, width, height);
         renderer.shadowMap.enabled =false;
         renderer.localClippingEnabled = false;

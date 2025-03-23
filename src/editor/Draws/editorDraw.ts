@@ -9,6 +9,8 @@ export interface IEditorDraw {
 
     updateZoom(zoom:number): void;
 
+    resolutionChange(resolution:Vector2):void;
+
     startDrawFromRay():void;
 
     startDraw(point: Vector2):void;
@@ -21,10 +23,13 @@ export interface IEditorDraw {
 
     cancel():void;
 
+    drawColor:number;
+
 }
 
 export class EditorDraw {
 
+    public drawColor:number = 0x000000;
 
     protected pointers: IDrawPointer[] = [];
 
@@ -50,7 +55,7 @@ export class EditorDraw {
 
     drawPointer(point: Vector2){
     
-        const pointer = new DrawPointerCircle(point, this.zoom);
+        const pointer = new DrawPointerCircle(point, this.zoom, this.drawColor);
         pointer.renderOrder = this.layer.renderOrder + 2;
         this.pointers.push(pointer);
         pointer.draw();

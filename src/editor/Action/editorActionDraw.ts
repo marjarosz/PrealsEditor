@@ -29,7 +29,11 @@ export class EditorActionDraw extends EditorAction implements IEditorActionDraw 
         this.editorDraw.updateZoom(zoom);
     }
 
-
+    resolutionChange(resolution: Vector2): void {
+       
+        super.resolutionChange(resolution);
+        this.editorDraw.resolutionChange(resolution);
+    }
 
     start(): void {
         this.setStartEvent();

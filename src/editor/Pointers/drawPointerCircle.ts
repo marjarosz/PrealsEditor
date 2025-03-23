@@ -12,9 +12,13 @@ export class DrawPointerCircle extends DrawObject implements IDrawPointer{
 
     protected meshMaterial: MeshBasicMaterial;
 
+    protected radius:number = 1.5;
+
     readonly pointerGroup: IPointerGroup = new PointerGroup();
 
     public scaleMultiple: number = 1;
+
+    protected edgesColor: number = 0x000000;
 
     get vissible(){
         return this.pointerGroup.visible;
@@ -32,10 +36,13 @@ export class DrawPointerCircle extends DrawObject implements IDrawPointer{
         this.meshMaterial.color = value;
     }
 
-    constructor(public sPoint: Vector2, private zoom: number, color?: number){
+    constructor(public sPoint: Vector2, protected zoom: number,  color?: number){
        
         super();
-        this.meshMaterial = new MeshBasicMaterial( { color: (color != undefined) ? color : 0xFFFFFF, transparent: true } );
+        if(color != undefined) {
+            this.edgesColor = color;
+        }
+        this.meshMaterial = new MeshBasicMaterial( { color: 0xFFFFFF, transparent: true } );
         this.pointerGroup.pointerParent = this;
       
 
@@ -56,8 +63,12 @@ export class DrawPointerCircle extends DrawObject implements IDrawPointer{
       
         this.zoom = zoom;
        // this.drawSquare(this.sPoint, zoom, resolution);
-       this.drawCircle(resolution);
+      // this.drawCircle(resolution);
        this.scaleGroupByZoom();
+    }
+
+    updateResolution(resolution: Vector2): void {
+        this.drawCircle(resolution);
     }
 
     updateStartPoint(sPoint: Vector2, resolution: Vector2){
@@ -78,7 +89,7 @@ export class DrawPointerCircle extends DrawObject implements IDrawPointer{
  
     }
 
-    private clearGroup() {
+    protected clearGroup() {
         for(const c of this.pointerGroup.children){
             c.removeFromParent();
             Object3DUtility.disposeObject(c);
@@ -98,25 +109,21 @@ export class DrawPointerCircle extends DrawObject implements IDrawPointer{
     protected drawCircle(resolution?: Vector2){
 
         this.clearGroup();
-       
-        // const prim = new PrimitiveRectangle(new Vector2(), new Vector2(1 , 1), PrimitiveRectangularType.fromCenter);
-        const prim = new PrimitiveCircle(this.sPoint, 2)
-      
-        // const edges = prim.getEdges(resolution);
-        const edges = prim.getEdges(resolution, 2);
+        this.drawCircleObject(resolution);
+        this.scaleGroupByZoom();
+
+    }
+
+    protected drawCircleObject(resolution?: Vector2){
+        const prim = new PrimitiveCircle(this.sPoint, this.radius);
+        const edges = prim.getEdges(resolution, 2, this.edgesColor);
         const mesh = MeshUtility.getMeshFromEdges(edges, this.meshMaterial);
         mesh.renderOrder = this.renderOrder;
-        //mesh.type = "MeshPointer";
-       // mesh.renderOrder = 5;
         this.pointerGroup.add(mesh);
         for(const e of edges ){
             e.lineObject.renderOrder = this.renderOrder+1;
             this.pointerGroup.add(e.lineObject);
-             //e.lineObject.type = 'PointerLineSegment'
         }
-
-        this.scaleGroupByZoom();
-
     }
 
 }
