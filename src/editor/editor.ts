@@ -350,8 +350,7 @@ export class Editor implements IEditor{
 
     private zoomChanged(){
 
-
-
+        this._currentAction?.zoomChange(this.camera.zoom);
         this._zoomChangeCallbacks.callCallback(this.camera.zoom);
 
     }
@@ -460,7 +459,7 @@ export class Editor implements IEditor{
 
    public cancelAction(runCallback: boolean = false){
 
-        console.log("CANCEL ACTION")
+        
         if(this._currentAction) {
 
             const currentType = this._currentAction.actionType;
@@ -471,6 +470,8 @@ export class Editor implements IEditor{
                 this._cancelActionCallbacks.callCallback(currentType);
             }
             this.render();
+            this.resetActionEvent();
+            this._currentAction = undefined;
         }
         
 
@@ -484,7 +485,7 @@ export class Editor implements IEditor{
             return;
         } 
 
-        const draw = this._actionDrawFactory.getEditorDrawType(EditorDrawType.free, this.raycaster, this._currentLayer, this.resolution, this._scale);
+        const draw = this._actionDrawFactory.getEditorDrawType(EditorDrawType.free, this.raycaster, this._currentLayer, this.resolution, this._scale, this.camera.zoom);
         this._currentAction = new EditorActionDraw(draw, this.raycaster, this._currentLayer, this.resolution);
         this._currentAction.zoomChange(this.camera.zoom);
         this.setActionEvent();
@@ -513,6 +514,13 @@ export class Editor implements IEditor{
         this._currentAction.rendererNeedUpdateCallback = this.render.bind(this);
         this.currentClickEvent = this._currentAction.clickEvent.bind(this._currentAction);
         this.currentOnPointerEvent = this._currentAction.onPointerEvent.bind(this._currentAction);
+
+   }
+
+   private resetActionEvent(){
+
+        this.currentClickEvent = ()=>{};
+        this.currentOnPointerEvent = ()=>{};
 
    }
 

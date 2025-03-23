@@ -21,9 +21,11 @@ export class EditorActionDraw extends EditorAction implements IEditorActionDraw 
 
     cancel(){
 
+        this.editorDraw.cancel();
     }
 
     zoomChange(zoom: number): void {
+       
         this.editorDraw.updateZoom(zoom);
     }
 
@@ -38,13 +40,28 @@ export class EditorActionDraw extends EditorAction implements IEditorActionDraw 
     }
 
     private setStartEvent(){
-        this.currentClickEvent = this.addPoint.bind(this);
+        this.currentClickEvent = this.startDraw.bind(this);
     }
 
-    private addPoint(){
+    private startDraw(e:MouseEvent){
         this.raycaster.updateReycaster();
         this.editorDraw.startDrawFromRay();
         this.rendererNeedUpdateCallback();
+        this.currentOnPointerEvent = this.drawTemp.bind(this);
+        this.currentClickEvent = this.drawClick.bind(this);
+    }
+
+    private drawTemp(e: PointerEvent){
+
+        this.raycaster.updateReycaster();
+        this.editorDraw.drawTemp(this.raycaster.getOrigin());
+        this.rendererNeedUpdateCallback();
+
+    }
+
+    private drawClick(e:MouseEvent){
+        this.raycaster.updateReycaster();
+        this.editorDraw.drawClick(this.raycaster.getOrigin());
     }
 
 }

@@ -18,13 +18,13 @@ export enum EditorDrawType  {
 
 export interface IEditorActionDrawFactory {
 
-    getEditorDrawType(type: EditorDrawType, raycaster: IEditorRaycaster, layer: IEditorLayer, resolution: Vector2, scale: number): IEditorDraw
+    getEditorDrawType(type: EditorDrawType, raycaster: IEditorRaycaster, layer: IEditorLayer, resolution: Vector2, scale: number, zoom:number): IEditorDraw
 
 }
 
 export class EditorActionDrawFactory implements IEditorActionDrawFactory{
 
-    getEditorDrawType(type: EditorDrawType, raycaster: IEditorRaycaster, layer: IEditorLayer, resolution: Vector2, scale: number): IEditorDraw{
-        return new EditorDrawFree(raycaster, layer, resolution,scale);
+    getEditorDrawType(type: EditorDrawType, raycaster: IEditorRaycaster, layer: IEditorLayer, resolution: Vector2, scale: number, zoom:number): IEditorDraw{
+        return new EditorDrawFree(raycaster, layer, resolution,scale, zoom);
     }
 }

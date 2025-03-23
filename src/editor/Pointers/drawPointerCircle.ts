@@ -105,11 +105,13 @@ export class DrawPointerCircle extends DrawObject implements IDrawPointer{
         // const edges = prim.getEdges(resolution);
         const edges = prim.getEdges(resolution, 2);
         const mesh = MeshUtility.getMeshFromEdges(edges, this.meshMaterial);
+        mesh.renderOrder = this.renderOrder;
         //mesh.type = "MeshPointer";
-        mesh.renderOrder = 5;
+       // mesh.renderOrder = 5;
         this.pointerGroup.add(mesh);
         for(const e of edges ){
-             this.pointerGroup.add(e.lineObject);
+            e.lineObject.renderOrder = this.renderOrder+1;
+            this.pointerGroup.add(e.lineObject);
              //e.lineObject.type = 'PointerLineSegment'
         }
 

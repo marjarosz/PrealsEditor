@@ -95,7 +95,7 @@ export class EditorGrid extends Line{
 
         //super(geometry, material);
 
-        this.renderOrder = 100;
+        this.renderOrder = 10;
     }
 
 

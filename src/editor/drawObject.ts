@@ -12,6 +12,8 @@ export interface IDrawObject {
      */
     drawObjectParent: IDrawObject | undefined;
 
+    renderOrder: number;
+
 }
 
 export class DrawObject implements IDrawObject {
@@ -19,5 +21,7 @@ export class DrawObject implements IDrawObject {
     public readonly uuid: string = generateUUID();
 
     public drawObjectParent: IDrawObject | undefined;
+
+    renderOrder: number = 1;
 
 }
