@@ -3,6 +3,7 @@ import { IEditorRaycaster } from "../editorRaycaster";
 import { IEditorLayer } from "../Layers/editorLayer";
 import { IEditorDraw } from "../Draws/editorDraw";
 import { EditorDrawFree } from "../Draws/editorDrawFree";
+import { IDrawTrack } from "../Draws/drawTrack";
 
 export enum EditorDrawType  {
     
@@ -18,13 +19,13 @@ export enum EditorDrawType  {
 
 export interface IEditorActionDrawFactory {
 
-    getEditorDrawType(type: EditorDrawType, raycaster: IEditorRaycaster, layer: IEditorLayer, resolution: Vector2, scale: number, zoom:number): IEditorDraw
+    getEditorDrawType(type: EditorDrawType, raycaster: IEditorRaycaster, drawTrack:IDrawTrack, layer: IEditorLayer, resolution: Vector2, scale: number, zoom:number): IEditorDraw
 
 }
 
 export class EditorActionDrawFactory implements IEditorActionDrawFactory{
 
-    getEditorDrawType(type: EditorDrawType, raycaster: IEditorRaycaster, layer: IEditorLayer, resolution: Vector2, scale: number, zoom:number): IEditorDraw{
-        return new EditorDrawFree(raycaster, layer, resolution,scale, zoom);
+    getEditorDrawType(type: EditorDrawType, raycaster: IEditorRaycaster, drawTrack:IDrawTrack, layer: IEditorLayer, resolution: Vector2, scale: number, zoom:number): IEditorDraw{
+        return new EditorDrawFree(raycaster, drawTrack, layer, resolution,scale, zoom);
     }
 }

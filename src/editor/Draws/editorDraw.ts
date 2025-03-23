@@ -4,6 +4,7 @@ import { IEditorLayer } from "../Layers/editorLayer";
 import { DrawPointerCircle } from "../Pointers/drawPointerCircle";
 import { IDrawPointer } from "../Pointers/drawPointer";
 import { IEditorEdge } from "../Edges/editorEdge";
+import { IDrawTrack } from "./drawTrack";
 
 export interface IEditorDraw {
 
@@ -35,7 +36,7 @@ export class EditorDraw {
 
     protected edges: IEditorEdge[] = [];
  
-    constructor(public raycaster: IEditorRaycaster, protected readonly layer: IEditorLayer, protected resolution: Vector2, public scale: number, protected zoom:number) {
+    constructor(public raycaster: IEditorRaycaster, protected drawTrack:IDrawTrack, protected readonly layer: IEditorLayer, protected resolution: Vector2, public scale: number, protected zoom:number) {
 
 
     }
@@ -70,9 +71,23 @@ export class EditorDraw {
         for(const p of this.pointers){
             p.updateZoom(zoom);
         }
+        this.drawTrack.updateZoom(zoom);
 
     }
 
+    resolutionChange(resolution:Vector2){
+        this.resolution = resolution;
+        
+    }
+
+    cancel(){
+        this.drawTrack.dispose();
+    }
+
+    protected showNormalTrack(startPoint: Vector2, point?:Vector2){
+        this.drawTrack.setNormalTrackLine(startPoint, point);
+ 
+    }
     
 
 }

@@ -1,4 +1,4 @@
-import { Vector2 } from "three";
+import { Color, Vector2 } from "three";
 import { EditorDraw, IEditorDraw } from "./editorDraw";
 import { IDrawPointer } from "../Pointers/drawPointer";
 import { DrawPointerCircle } from "../Pointers/drawPointerCircle";
@@ -6,6 +6,7 @@ import { ILineSegmentEdge, LineSegmentEdge } from "../Edges/lineSegmentEdge";
 import { IEditorRaycaster } from "../editorRaycaster";
 import { IEditorLayer } from "../Layers/editorLayer";
 import { DrawPointerCircleCross } from "../Pointers/drawPointerCircleCross";
+import { IDrawTrack } from "./drawTrack";
 
 
 
@@ -24,8 +25,8 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
     private tempEdge: ILineSegmentEdge;
     
 
-    constructor(raycaster: IEditorRaycaster, layer: IEditorLayer, resolution: Vector2, scale: number, zoom:number){
-        super(raycaster, layer, resolution, scale, zoom);
+    constructor(raycaster: IEditorRaycaster,drawTrack:IDrawTrack, layer: IEditorLayer, resolution: Vector2, scale: number, zoom:number){
+        super(raycaster, drawTrack,layer, resolution, scale, zoom);
 
         this.tempDrawPointer = new DrawPointerCircleCross(new Vector2(0,0), this.zoom, this.drawColor);
         this.tempEdge = new LineSegmentEdge(new Vector2(0,0), new Vector2(0,0), this.resolution, this.lineWidth, this.drawColor); 
@@ -40,16 +41,25 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
         this.tempEdge.endPoint = point.clone();
         this.tempEdge.renderOrder = this.layer.renderOrder + 1;
         this.layer.group.add(this.tempEdge.lineObject);
+        this.showNormalTrack(point);
        
     }
 
     drawTemp(point: Vector2): boolean {
         
-        this.tempDrawPointer.updateStartPoint(point.clone(), this.resolution);
+        this.drawTrack.updateNormalTrackLine(point);
+        this.tempDrawPointer.fillColor = new Color(0xFFFFFF);        
+        const normals = this.drawTrack.getNormalTrack(point);
+        let tempPoint = normals.point;
+
+        if(normals.isPoint){
+            this.tempDrawPointer.fillColor = new Color(this.drawTrack.normalTrackColor);
+        }
+
+        this.tempDrawPointer.updateStartPoint(tempPoint.clone(), this.resolution);
         this.tempEdge.endPoint = this.tempDrawPointer.sPoint;
         this.tempEdge.updateModel(this.resolution);
-      
-        
+
         return true;
         
     }
@@ -68,17 +78,20 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
 
     drawClick(point: Vector2): boolean {
 
+        
+        const normals = this.drawTrack.getNormalTrack(point);
+        let addPoint = normals.point;
         /**
          * Dodaj  pointer
          */
-        const pointer = new DrawPointerCircle(point, this.zoom, this.drawColor);
+        const pointer = new DrawPointerCircle(addPoint, this.zoom, this.drawColor);
         pointer.renderOrder = this.layer.renderOrder + 2;
         pointer.draw(this.resolution);
         
         /**
          * Dodaj linie
          */
-        const edge = new LineSegmentEdge(this.pointers[this.pointers.length-1].sPoint, point, this.resolution, this.lineWidth, this.drawColor);
+        const edge = new LineSegmentEdge(this.pointers[this.pointers.length-1].sPoint, addPoint, this.resolution, this.lineWidth, this.drawColor);
         edge.renderOrder = this.layer.renderOrder + 1;
         edge.updateModel(this.resolution);
         this.edges.push(edge);
@@ -90,18 +103,25 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
         /**
          * Zmien punkt startowy
          */
-        this.tempEdge.startPoint = point;
+        this.tempEdge.startPoint = addPoint;
+        this.drawTrack.updateNormalTrackLine(point, addPoint.clone());
 
         return true;
     }
 
     cancel(): void {
-        this.tempDrawPointer.pointerGroup.removeFromParent();
-        this.tempEdge.lineObject.removeFromParent();
+        super.cancel();
+        this.tempDrawPointer.dispose();
+        this.tempEdge.dispose();
+        if(this.pointers.length == 1){
+           this.pointers[0].dispose();
+           this.pointers.length = 0;
+        }
     }
 
     resolutionChange(resolution: Vector2): void {
-        this.resolution = resolution;
+        super.resolutionChange(resolution);
+        
 
         this.tempEdge.updateResolution(resolution);
         this.layer.group.add(this.tempEdge.lineObject);

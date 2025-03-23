@@ -3,6 +3,7 @@ import { ActionType, EditorAction, IEditorAction } from "./editorAction";
 import { IEditorRaycaster } from "../editorRaycaster";
 import { IEditorLayer } from "../Layers/editorLayer";
 import { IEditorDraw } from "../Draws/editorDraw";
+import { IDrawTrack } from "../Draws/drawTrack";
 
 export interface IEditorActionDraw extends IEditorAction{
 
@@ -13,7 +14,7 @@ export class EditorActionDraw extends EditorAction implements IEditorActionDraw 
 
     readonly actionType: ActionType = ActionType.ActionDraw;
 
-    constructor(protected editorDraw: IEditorDraw, raycaster: IEditorRaycaster,  layer: IEditorLayer, resolution: Vector2) {
+    constructor(protected editorDraw: IEditorDraw, protected drawTrack: IDrawTrack, raycaster: IEditorRaycaster,  layer: IEditorLayer, resolution: Vector2) {
 
         super(raycaster, layer, resolution);
     }
@@ -66,6 +67,7 @@ export class EditorActionDraw extends EditorAction implements IEditorActionDraw 
     private drawClick(e:MouseEvent){
         this.raycaster.updateReycaster();
         this.editorDraw.drawClick(this.raycaster.getOrigin());
+        this.rendererNeedUpdateCallback();
     }
 
 }

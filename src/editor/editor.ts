@@ -9,6 +9,7 @@ import { EditorDrawLayer, IEditorDrawLayer } from "./Layers/editorDrawLayer";
 import { ActionType, IEditorAction } from "./Action/editorAction";
 import { EditorActionDrawFactory, EditorDrawType, IEditorActionDrawFactory } from "./Action/editorActionDrawFactory";
 import { EditorActionDraw } from "./Action/editorActionDraw";
+import { DrawTrack } from "./Draws/drawTrack";
 
 
 interface ILastCameraValues {
@@ -490,9 +491,13 @@ export class Editor implements IEditor{
         if(this._currentLayer == undefined){
             return;
         } 
+        
+        const drawTrack = new DrawTrack(this.raycaster, this.resolution, this._currentLayer.group, this.renderer.pixelRatio);
+        const draw = this._actionDrawFactory.getEditorDrawType(EditorDrawType.free, this.raycaster, drawTrack, this._currentLayer, this.resolution, this._scale, this.camera.zoom);
+        
+        drawTrack.renderOrder = this._currentLayer.renderOrder;
+        this._currentAction = new EditorActionDraw(draw, drawTrack, this.raycaster, this._currentLayer, this.resolution);
 
-        const draw = this._actionDrawFactory.getEditorDrawType(EditorDrawType.free, this.raycaster, this._currentLayer, this.resolution, this._scale, this.camera.zoom);
-        this._currentAction = new EditorActionDraw(draw, this.raycaster, this._currentLayer, this.resolution);
         this._currentAction.zoomChange(this.camera.zoom);
         this.setActionEvent();
         this._currentAction.start();
