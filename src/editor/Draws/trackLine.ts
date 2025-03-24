@@ -13,6 +13,8 @@ export interface ITrackLine {
      */
     trackGroup: ITrackGroup;
 
+    renderOrder: number;
+
     /**
      * Object3D lini sledzenia
      */
@@ -76,6 +78,8 @@ export class TrackLine implements ITrackLine {
 
     private lineTrack: ILineSegmentEdge;
 
+    private _renderOrder: number = 1;
+
     _sPoint: Vector2;
 
     _ePoint: Vector2;
@@ -86,6 +90,17 @@ export class TrackLine implements ITrackLine {
 
     get ePoint() {
         return this._ePoint;
+    }
+
+    get renderOrder(){
+        return this._renderOrder;
+    }
+
+    set renderOrder(value: number){
+        this._renderOrder = value;
+        this.lineBlack.lineObject.renderOrder = this._renderOrder;
+        this.lineColor.lineObject.renderOrder = this._renderOrder;
+        this.lineTrack.lineObject.renderOrder = this._renderOrder;
     }
 
     constructor(sPoint: Vector2, ePoint: Vector2, protected color: number, protected resolution: Vector2, protected trackSize: number, protected lineColorSize = 3){

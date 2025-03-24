@@ -84,12 +84,14 @@ export class DrawTrack implements IDrawTrack {
 
         
         this.xNormal =  new TrackLine(currentPoint, normals[0],this.normalTrackColor, this.resolution, 5);
+        this.xNormal.renderOrder = this.renderOrder;
         this.xNormal.zoomUpdate(this.raycaster.camera.zoom);
-        this.xNormal.trackGroup.renderOrder = this.renderOrder;
+      
         this.group.add(this.xNormal.trackGroup);
         this.yNormal  = new TrackLine(currentPoint, normals[1],this.normalTrackColor, this.resolution, 5);
+        this.yNormal.renderOrder = this.renderOrder;
         this.yNormal.zoomUpdate(this.raycaster.camera.zoom);
-        this.yNormal.trackGroup.renderOrder = this.renderOrder;
+       
         this.group.add(this.yNormal.trackGroup);
 
     
