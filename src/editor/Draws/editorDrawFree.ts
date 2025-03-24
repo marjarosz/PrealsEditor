@@ -41,16 +41,26 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
         this.tempEdge.endPoint = point.clone();
         this.tempEdge.renderOrder = this.layer.renderOrder + 1;
         this.layer.group.add(this.tempEdge.lineObject);
-        this.showNormalTrack(point);
+        this.showOrtoTrack(point);
        
     }
 
     drawTemp(point: Vector2): boolean {
         
-        this.drawTrack.updateNormalTrackLine(point);
-        this.tempDrawPointer.fillColor = new Color(0xFFFFFF);        
-        const normals = this.drawTrack.getNormalTrack(point);
+        this.drawTrack.updateOrtoTrackLine(point);
+        this.tempDrawPointer.fillColor = new Color(0xFFFFFF); 
+        
+        /**
+         * ORTO
+         */
+        const normals = this.drawTrack.getOrtoTrack(point);
         let tempPoint = normals.point;
+
+        /**
+         * Points
+         */
+        this.drawTrack.getPointTrack(tempPoint);
+
 
         if(normals.isPoint){
             this.tempDrawPointer.fillColor = new Color(this.drawTrack.normalTrackColor);
@@ -79,7 +89,7 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
     drawClick(point: Vector2): boolean {
 
         
-        const normals = this.drawTrack.getNormalTrack(point);
+        const normals = this.drawTrack.getOrtoTrack(point);
         let addPoint = normals.point;
         /**
          * Dodaj  pointer
@@ -104,7 +114,15 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
          * Zmien punkt startowy
          */
         this.tempEdge.startPoint = addPoint;
-        this.drawTrack.updateNormalTrackLine(point, addPoint.clone());
+        this.drawTrack.updateOrtoTrackLine(point, addPoint.clone());
+
+        /**
+         * Dodanie punktow do sledzenia
+         */
+        if(this.pointers.length > 1) {
+            this.drawTrack.addTrackingPoint(this.pointers[this.pointers.length - 2].sPoint);
+        }
+
 
         return true;
     }

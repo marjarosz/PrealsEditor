@@ -84,8 +84,8 @@ export class EditorDraw {
         this.drawTrack.dispose();
     }
 
-    protected showNormalTrack(startPoint: Vector2, point?:Vector2){
-        this.drawTrack.setNormalTrackLine(startPoint, point);
+    protected showOrtoTrack(startPoint: Vector2, point?:Vector2){
+        this.drawTrack.setOrtoTrackLine(startPoint, point);
  
     }
     
