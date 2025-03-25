@@ -100,6 +100,18 @@ export namespace EditorMath {
         
     }
 
+
+    /**
+     * 
+     * Zwraca odleglosc pomiedzy wartosciami lezaczymi na jednej osi
+     * 
+     * @param p1 
+     * @param p2 
+     * @returns 
+     */
+    export function distanceOrto(p1:number, p2:number){
+        return Math.sqrt(Math.pow((p1-p2), 2));
+    }
     //TESTED
     /**
      * 

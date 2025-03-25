@@ -48,23 +48,30 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
     drawTemp(point: Vector2): boolean {
         
         this.drawTrack.updateOrtoTrackLine(point);
-        this.tempDrawPointer.fillColor = new Color(0xFFFFFF); 
+        let fillColor = 0xFFFFFF;
+       
         
         /**
          * ORTO
          */
-        const normals = this.drawTrack.getOrtoTrack(point);
-        let tempPoint = normals.point;
+        const trackOrto = this.drawTrack.getOrtoTrack(point);
+        let tempPoint = trackOrto.point;
+
+        if(trackOrto.isPoint){
+            fillColor = this.drawTrack.ortoTrackColor;
+        }
 
         /**
          * Points
          */
-        this.drawTrack.getPointTrack(tempPoint);
-
-
-        if(normals.isPoint){
-            this.tempDrawPointer.fillColor = new Color(this.drawTrack.normalTrackColor);
+        const trackPoints = this.drawTrack.getPointTrack(tempPoint);
+        tempPoint = trackPoints.point;
+       
+        if(trackPoints.isPoint){
+            fillColor = this.drawTrack.pointTrackColor;
         }
+
+        this.tempDrawPointer.fillColor = new Color(fillColor); 
 
         this.tempDrawPointer.updateStartPoint(tempPoint.clone(), this.resolution);
         this.tempEdge.endPoint = this.tempDrawPointer.sPoint;
@@ -83,14 +90,18 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
 
         this.tempEdge.endPoint = this.tempDrawPointer.sPoint;
         this.tempEdge.updateModel(this.resolution);
+        this.drawTemp(this.raycaster.getOrigin());
       
     }
 
     drawClick(point: Vector2): boolean {
 
         
-        const normals = this.drawTrack.getOrtoTrack(point);
-        let addPoint = normals.point;
+        const orto = this.drawTrack.getOrtoTrack(point);
+        let addPoint = orto.point;
+
+        const trackPoints = this.drawTrack.getPointTrack(addPoint);
+        addPoint = trackPoints.point;
         /**
          * Dodaj  pointer
          */

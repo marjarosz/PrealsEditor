@@ -18,9 +18,9 @@ export interface IDrawTrack {
     /**
      * Od jakiej odleglosci punktu do linni sledzenia pozioma / pionowa umiejscic punkt na prostej w px
      */
-    normalTrackSize:number;
+    ortoTrackSize:number;
 
-    normalTrackColor: number;
+    ortoTrackColor: number;
 
     pointTrackSize: number;
 
@@ -51,11 +51,11 @@ export class DrawTrack implements IDrawTrack {
 
     public renderOrder: number = 1;
 
-    public normalTrackSize: number = 10;
+    public ortoTrackSize: number = 3;
 
-    public normalTrackColor: number = 0xfdff00;
+    public ortoTrackColor: number = 0xfdff00;
 
-    public pointTrackSize: number  = 10;
+    public pointTrackSize: number  = 3;
 
     public pointTrackColor: number = 0x00a7ff;
 
@@ -115,17 +115,18 @@ export class DrawTrack implements IDrawTrack {
             this.yOrto.dispose();
         }
 
-        
-        this.xOrto =  new TrackLine(currentPoint, normals[0],this.normalTrackColor, this.resolution, 5);
-        this.xOrto.renderOrder = this.renderOrder;
-        this.xOrto.zoomUpdate(this.raycaster.camera.zoom);
+        this.xOrto = this.createDashedTrackLine(currentPoint, normals[0], this.ortoTrackColor, this.ortoTrackSize);
+        this.yOrto = this.createDashedTrackLine(currentPoint, normals[1], this.ortoTrackColor, this.ortoTrackSize);
+        //this.xOrto =  new TrackLine(currentPoint, normals[0],this.ortoTrackColor, this.resolution, 5);
+        //this.xOrto.renderOrder = this.renderOrder;
+        //this.xOrto.zoomUpdate(this.raycaster.camera.zoom);
       
-        this.group.add(this.xOrto.trackGroup);
-        this.yOrto = new TrackLine(currentPoint, normals[1],this.normalTrackColor, this.resolution, 5);
-        this.yOrto.renderOrder = this.renderOrder;
-        this.yOrto.zoomUpdate(this.raycaster.camera.zoom);
+       // this.group.add(this.xOrto.trackGroup);
+       // this.yOrto = new TrackLine(currentPoint, normals[1],this.ortoTrackColor, this.resolution, 5);
+       // this.yOrto.renderOrder = this.renderOrder;
+       // this.yOrto.zoomUpdate(this.raycaster.camera.zoom);
        
-        this.group.add(this.yOrto.trackGroup);
+      //  this.group.add(this.yOrto.trackGroup);
 
     
 
@@ -139,7 +140,7 @@ export class DrawTrack implements IDrawTrack {
             this.removeXPointTrackLine();
         }
 
-        this.xPointTrackLine = this.createDashedTrackLine(sPoint, ePoint, this.pointTrackColor);
+        this.xPointTrackLine = this.createDashedTrackLine(sPoint, ePoint, this.pointTrackColor, this.pointTrackSize);
     }
 
     public setPointYTrackLine(sPoint: Vector2, ePoint:Vector2) {
@@ -150,7 +151,7 @@ export class DrawTrack implements IDrawTrack {
             this.removeYPointTrackLine();
         }
 
-        this.yPointTrackLine = this.createDashedTrackLine(sPoint, ePoint, this.pointTrackColor);
+        this.yPointTrackLine = this.createDashedTrackLine(sPoint, ePoint, this.pointTrackColor, this.pointTrackSize);
 
     }
 
@@ -168,9 +169,9 @@ export class DrawTrack implements IDrawTrack {
         this.yOrto.zoomUpdate(this.raycaster.camera.zoom);
     }
 
-    protected createDashedTrackLine(sPoint:Vector2, ePoint:Vector2, color: number){
+    protected createDashedTrackLine(sPoint:Vector2, ePoint:Vector2, color: number, trackSize: number){
 
-        const tl = new TrackLine(sPoint, ePoint, this.pointTrackColor, this.resolution, 5);
+        const tl = new TrackLine(sPoint, ePoint, color, this.resolution, trackSize);
         tl.renderOrder = this.renderOrder;
         tl.zoomUpdate(this.raycaster.camera.zoom);
         this.group.add(tl.trackGroup);
@@ -211,9 +212,10 @@ export class DrawTrack implements IDrawTrack {
          * Os X
          */
         if(this.xOrto) {
-            let disY = new Vector2(0, this.xOrto.sPoint.y).distanceTo(new Vector2(0, point.y));
-            disY = EditorMath.meterToPixels(disY);
-            if(disY <= this.normalTrackSize){
+            
+            let disY = EditorMath.distanceOrto(this.xOrto.sPoint.y, point.y);
+            disY /= (2.6458333333 / this.raycaster.camera.zoom);
+            if(disY <= this.ortoTrackSize){
                 ret.point = new Vector2(point.x, this.xOrto.sPoint.y);
                 ret.isPoint = true;
             }
@@ -223,9 +225,10 @@ export class DrawTrack implements IDrawTrack {
          * Os Y
          */
         if(this.yOrto) {
-            let disX = new Vector2(this.yOrto.sPoint.x, 0).distanceTo(new Vector2(point.x, 0));
-            disX = EditorMath.meterToPixels(disX);
-            if(disX <= this.normalTrackSize) {
+           
+            let disX = EditorMath.distanceOrto(this.yOrto.sPoint.x, point.x);
+            disX /= (2.6458333333 / this.raycaster.camera.zoom);
+            if(disX <= this.ortoTrackSize) {
                 ret.point = new Vector2(this.yOrto.sPoint.x, point.y);
                 ret.isPoint = true;
             }
@@ -243,40 +246,53 @@ export class DrawTrack implements IDrawTrack {
         let pointX:Vector2 | undefined;
         let pointY:Vector2 | undefined;
 
+        let trackDistanceX = Infinity;
+        let trackDistanceY = Infinity;
+
         for(const p of this.trackingPoints) {
 
             //Punkt po ois X
-            let disX = new Vector2(p.x, 0).distanceTo(new Vector2(point.x, 0));
-            disX = EditorMath.meterToPixels(disX, this.pixelRatio);
+            let disX = EditorMath.distanceOrto(p.x, point.x);
+            disX /=(2.6458333333 / this.raycaster.camera.zoom);
 
-            if(disX <= this.pointTrackSize) {
-                console.log("JEST point X")
+            //odleglosc po Y
+            const tempTrackDistanceX = EditorMath.distanceOrto(p.y, point.y);
+
+            if(disX <= this.pointTrackSize && tempTrackDistanceX < trackDistanceX) {
+                
+                trackDistanceX = tempTrackDistanceX;
                 pointX = p;
             }
             
             //Punkt po osi Y
+            let disY = EditorMath.distanceOrto(p.y, point.y);
+            disY /=(2.6458333333 / this.raycaster.camera.zoom);
 
-            let disY = new Vector2(0, p.y).distanceTo(new Vector2(0, point.y));
-            disY = EditorMath.meterToPixels(disY, this.pixelRatio);
+            //odleglosc po X
+            const tempTrackDistanceY = EditorMath.distanceOrto(p.x, point.x);
 
-            if(disY <= this.pointTrackSize) {
-                pointY = p
+            if(disY <= this.pointTrackSize && tempTrackDistanceY < trackDistanceY) {
                 
-            }
-
-            if(pointX) {
-                this.setPointXTrackLine(pointX, new Vector2(pointX.x, point.y));
-            } else {
-                this.removeXPointTrackLine();
-            }
-
-            if(pointY) {
-                this.setPointYTrackLine(pointY, new Vector2(point.x, pointY.y));
-            } else {
-                this.removeYPointTrackLine();
+                trackDistanceY = tempTrackDistanceY;
+                pointY = p;
             }
 
         }
+
+        this.removeXPointTrackLine();
+        this.removeYPointTrackLine();
+
+        if(pointX) {
+            this.setPointXTrackLine(pointX, new Vector2(pointX.x, point.y));
+            ret.point = new Vector2(pointX.x, ret.point.y);
+            ret.isPoint = true;
+        } 
+
+        if(pointY) {
+            this.setPointYTrackLine(pointY, new Vector2(point.x, pointY.y));
+            ret.point = new Vector2(ret.point.x, pointY.y);
+            ret.isPoint = true;
+        } 
 
         return ret;
     }
@@ -298,12 +314,18 @@ export class DrawTrack implements IDrawTrack {
         
         this.xOrto?.zoomUpdate(zoom);
         this.yOrto?.zoomUpdate(zoom);
+
+        this.getPointTrack(this.raycaster.getOrigin());
+        //this.xPointTrackLine?.zoomUpdate(zoom);
+        //this.yPointTrackLine?.zoomUpdate(zoom);
     }
 
     public resolutionChange(resolution: Vector2): void {
         this.resolution = resolution;
         this.xOrto?.resolutionChange(resolution);
         this.yOrto?.resolutionChange(resolution);
+        //this.xPointTrackLine?.resolutionChange(resolution);
+       // this.yPointTrackLine?.resolutionChange(resolution);
     
     }
 

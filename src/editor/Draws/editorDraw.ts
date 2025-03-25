@@ -67,7 +67,6 @@ export class EditorDraw {
     updateZoom(zoom: number): void {
         
         this.zoom = zoom;
-        
         for(const p of this.pointers){
             p.updateZoom(zoom);
         }
