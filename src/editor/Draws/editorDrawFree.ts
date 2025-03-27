@@ -7,6 +7,7 @@ import { IEditorRaycaster } from "../editorRaycaster";
 import { IEditorLayer } from "../Layers/editorLayer";
 import { DrawPointerCircleCross } from "../Pointers/drawPointerCircleCross";
 import { IDrawTrack } from "./drawTrack";
+import { EditorMath } from "../../Utility/editorMath";
 
 
 
@@ -17,6 +18,7 @@ export interface IEditorDrawFree extends IEditorDraw{
 
 export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
 
+    public collisionColor: number = 0xff0000;
     public drawColor:number = 0xa61830;
     public lineWidth:number = 3;
 
@@ -47,6 +49,7 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
 
     drawTemp(point: Vector2): boolean {
         
+        let color = this.drawColor;
         this.drawTrack.updateOrtoTrackLine(point);
         let fillColor = 0xFFFFFF;
        
@@ -73,6 +76,20 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
 
         this.tempDrawPointer.fillColor = new Color(fillColor); 
 
+        /**
+         * Czy przecina inne krawedzie
+         */
+
+        const isIntr = this.intersectionWithDraw(tempPoint);
+
+        if(isIntr) {
+            const dis = this.pointers[0].sPoint.distanceTo(tempPoint);
+            if(!EditorMath.equalsDecimals(dis, 0, 0.00005)) {
+                color = this.collisionColor;
+            }
+        }
+
+        this.tempEdge.edgeColor = new Color(color);
         this.tempDrawPointer.updateStartPoint(tempPoint.clone(), this.resolution);
         this.tempEdge.endPoint = this.tempDrawPointer.sPoint;
         this.tempEdge.updateModel(this.resolution);
@@ -102,13 +119,23 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
 
         const trackPoints = this.drawTrack.getPointTrack(addPoint);
         addPoint = trackPoints.point;
+
+
+        let isLastPoint;
+        const dis = this.pointers[0].sPoint.distanceTo(addPoint);
+        if(EditorMath.equalsDecimals(dis, 0, 0.00005)) {
+            isLastPoint = true;
+        }
+
         /**
-         * Dodaj  pointer
+         * Czy przecina narysowane krawedzie
          */
-        const pointer = new DrawPointerCircle(addPoint, this.zoom, this.drawColor);
-        pointer.renderOrder = this.layer.renderOrder + 2;
-        pointer.draw(this.resolution);
-        
+        if(!isLastPoint) {
+            const isIntr = this.intersectionWithDraw(addPoint);
+            if(isIntr) {
+                return false;
+            }
+        }
         /**
          * Dodaj linie
          */
@@ -116,10 +143,23 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
         edge.renderOrder = this.layer.renderOrder + 1;
         edge.updateModel(this.resolution);
         this.edges.push(edge);
-        this.pointers.push(pointer);
-
-        this.layer.group.add(pointer.pointerGroup);
         this.layer.group.add(edge.lineObject);
+
+        /**
+         * Jezeli jest zakonczony ksztalt to zakoncz
+         */
+        if(isLastPoint) {
+
+        }
+
+        /**
+         * Dodaj  pointer
+         */
+        const pointer = new DrawPointerCircle(addPoint, this.zoom, this.drawColor);
+        pointer.renderOrder = this.layer.renderOrder + 2;
+        pointer.draw(this.resolution);
+        this.pointers.push(pointer);
+        this.layer.group.add(pointer.pointerGroup);
 
         /**
          * Zmien punkt startowy
@@ -133,7 +173,6 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
         if(this.pointers.length > 1) {
             this.drawTrack.addTrackingPoint(this.pointers[this.pointers.length - 2].sPoint);
         }
-
 
         return true;
     }
@@ -166,6 +205,24 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
             p.updateResolution(this.resolution);
         }
         
+    }
+
+    protected intersectionWithDraw(point: Vector2){
+        /**
+         * Czy przecina inne krawedzie
+         */
+        for(let i = 0; i < this.edges.length - 1; ++i) {
+            const intr = this.edges[i].intersectionWithEdge(this.tempEdge);
+            if(intr != EditorMath.IntersectionType.noIntersection) {
+                /**
+                 * Czy klikniecie na punk koncowy
+                 */
+                return true;
+
+            }
+        }
+
+        return false;
     }
 
 }

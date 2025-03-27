@@ -4,6 +4,8 @@ import { LineGeometry } from "three/examples/jsm/lines/LineGeometry";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial";
 import { ILineSegment, LineSegment } from "../Segments/lineSegment";
 import { IEdgeDataExport } from "./edgeData";
+import { EditorMath } from "../../Utility/editorMath";
+import { IArcEdge } from "./arcEdge";
 export enum EdgeType {
     'lineSegment' = 1,
     'arc' = 2,
@@ -167,6 +169,14 @@ export interface IEditorEdge extends IDrawObject{
      * przywroc z tymczasowych danych
      */
     fromTempSave(): void;
+
+    /**
+     * 
+     * Aprawdza przeciecie z inna krawedzai
+     * 
+     * @param edge 
+     */
+    intersectionWithEdge(edge:IEditorEdge):EditorMath.IntersectionType;
 
 }
 
@@ -338,6 +348,23 @@ export  class EdgeBase extends DrawObject{
         this.updateModel(resolution);
     }
 
+    public intersectionWithEdge(edge:IEditorEdge):EditorMath.IntersectionType {
+    
+        let inters:EditorMath.IntersectionType = EditorMath.IntersectionType.noIntersection;
+    
+        if(edge.edgeType == EdgeType.lineSegment) {
+            return  EditorMath.intersectionTwoLineSegment(this.startPoint, this.endPoint, edge.startPoint, edge.endPoint);
+        } else if (edge.edgeType == EdgeType.arc) {
+            return EditorMath.interstationLineSegmentArc(this.startPoint, this.endPoint, 
+                (edge as IArcEdge).arcCenterPoint, 
+                (edge as IArcEdge).radius, 
+                (edge as IArcEdge).startAngle, 
+                (edge as IArcEdge).endAngle, 
+                (edge as IArcEdge).clockwise);
+        }
+           
+        return inters;
+    }
     
 
 }

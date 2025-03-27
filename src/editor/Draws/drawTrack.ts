@@ -11,6 +11,10 @@ export interface IDrawTrackInfo {
     isPoint: boolean;
 }
 
+export interface IDrawTrackInfoPointer extends IDrawTrack {
+
+}
+
 export interface IDrawTrack {
 
     renderOrder:number;
@@ -51,11 +55,11 @@ export class DrawTrack implements IDrawTrack {
 
     public renderOrder: number = 1;
 
-    public ortoTrackSize: number = 3;
+    public ortoTrackSize: number = 2;
 
     public ortoTrackColor: number = 0xfdff00;
 
-    public pointTrackSize: number  = 3;
+    public pointTrackSize: number  = 2;
 
     public pointTrackColor: number = 0x00a7ff;
 
@@ -240,7 +244,8 @@ export class DrawTrack implements IDrawTrack {
     public getPointTrack(point:Vector2){
         const ret:IDrawTrackInfo = {
             point: point,
-            isPoint: false
+            isPoint: false,
+           
         }
 
         let pointX:Vector2 | undefined;
@@ -294,6 +299,8 @@ export class DrawTrack implements IDrawTrack {
             ret.isPoint = true;
         } 
 
+        
+
         return ret;
     }
 
@@ -314,18 +321,15 @@ export class DrawTrack implements IDrawTrack {
         
         this.xOrto?.zoomUpdate(zoom);
         this.yOrto?.zoomUpdate(zoom);
-
         this.getPointTrack(this.raycaster.getOrigin());
-        //this.xPointTrackLine?.zoomUpdate(zoom);
-        //this.yPointTrackLine?.zoomUpdate(zoom);
+  
     }
 
     public resolutionChange(resolution: Vector2): void {
+
         this.resolution = resolution;
         this.xOrto?.resolutionChange(resolution);
         this.yOrto?.resolutionChange(resolution);
-        //this.xPointTrackLine?.resolutionChange(resolution);
-       // this.yPointTrackLine?.resolutionChange(resolution);
     
     }
 

@@ -8,6 +8,7 @@ import { EdgeBase, EdgeType, IEditorEdge } from "./editorEdge";
 import { ILineSegment, LineSegment } from "../Segments/lineSegment";
 
 
+
 export interface ILineCoefficients {
     a: number;
     b: number;
@@ -248,6 +249,7 @@ export class LineSegmentEdge extends EdgeBase implements ILineSegmentEdge{
     }
 
 
+   
 
 }
 
