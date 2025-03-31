@@ -17,6 +17,12 @@ export class EditorActionDraw extends EditorAction implements IEditorActionDraw 
     constructor(protected editorDraw: IEditorDraw, protected drawTrack: IDrawTrack, raycaster: IEditorRaycaster,  layer: IEditorLayer, resolution: Vector2) {
 
         super(raycaster, layer, resolution);
+
+        editorDraw.subscribeEndDraw(()=>{
+            console.log("End draw");
+            this.setStartEvent();
+            
+        })
     }
 
 
@@ -38,6 +44,7 @@ export class EditorActionDraw extends EditorAction implements IEditorActionDraw 
 
     start(): void {
         this.setStartEvent();
+
     }
 
     end(): void {
@@ -46,6 +53,7 @@ export class EditorActionDraw extends EditorAction implements IEditorActionDraw 
 
     private setStartEvent(){
         this.currentClickEvent = this.startDraw.bind(this);
+        this.currentOnPointerEvent = this.noDrawTemp.bind(this);
     }
 
     private startDraw(e:MouseEvent){
@@ -54,6 +62,13 @@ export class EditorActionDraw extends EditorAction implements IEditorActionDraw 
         this.rendererNeedUpdateCallback();
         this.currentOnPointerEvent = this.drawTemp.bind(this);
         this.currentClickEvent = this.drawClick.bind(this);
+    }
+
+    private noDrawTemp(e: PointerEvent) {
+
+        this.raycaster.updateReycaster();
+        this.editorDraw.noDrawTemp(this.raycaster.getOrigin());
+        this.rendererNeedUpdateCallback();
     }
 
     private drawTemp(e: PointerEvent){

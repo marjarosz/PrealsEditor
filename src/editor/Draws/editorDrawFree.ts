@@ -6,8 +6,9 @@ import { ILineSegmentEdge, LineSegmentEdge } from "../Edges/lineSegmentEdge";
 import { IEditorRaycaster } from "../editorRaycaster";
 import { IEditorLayer } from "../Layers/editorLayer";
 import { DrawPointerCircleCross } from "../Pointers/drawPointerCircleCross";
-import { IDrawTrack } from "./drawTrack";
+import { IDrawTrack, IDrawTrackInfo } from "./drawTrack";
 import { EditorMath } from "../../Utility/editorMath";
+import { EditorWall } from "../Wall/editorWall";
 
 
 
@@ -26,6 +27,7 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
 
     private tempEdge: ILineSegmentEdge;
     
+    
 
     constructor(raycaster: IEditorRaycaster,drawTrack:IDrawTrack, layer: IEditorLayer, resolution: Vector2, scale: number, zoom:number){
         super(raycaster, drawTrack,layer, resolution, scale, zoom);
@@ -34,71 +36,101 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
         this.tempEdge = new LineSegmentEdge(new Vector2(0,0), new Vector2(0,0), this.resolution, this.lineWidth, this.drawColor); 
     }
 
-    startDraw(point: Vector2): void {
-        super.startDraw(point);
-        this.tempDrawPointer.updateStartPoint(point.clone(), this.resolution);
+    public startDraw(point: Vector2): void {
+        
+        const startPointTrack = this.drawTrack.getPointTrack(point);
+        const startPoint = startPointTrack.point;
+
+        this.drawPointer(startPoint);
+        this.tempDrawPointer.updateStartPoint(startPoint.clone(), this.resolution);
         this.tempDrawPointer.renderOrder = this.layer.renderOrder + 2;
         this.layer.group.add(this.tempDrawPointer.pointerGroup);
-        this.tempEdge.startPoint = point;
-        this.tempEdge.endPoint = point.clone();
+        this.tempEdge.startPoint = startPoint;
+        this.tempEdge.endPoint = startPoint.clone();
         this.tempEdge.renderOrder = this.layer.renderOrder + 1;
         this.layer.group.add(this.tempEdge.lineObject);
-        this.showOrtoTrack(point);
+        this.showOrtoTrack(startPoint);
        
     }
 
-    drawTemp(point: Vector2): boolean {
+    public endDraw(){
+
+        this.drawTrack.addTrackingPoint(this.pointers[this.pointers.length - 1].sPoint);
+        for(const e of this.edges) {
+            e.lineObject.setColor(new Color(0x000000));
+            const wall = new EditorWall();
+            wall.edges.push(e);
+            this.drawTrack.addTrackingEdge(e);
+            
+        }
+
+        for(const p of this.pointers){
+            p.dispose();
+        }
+
+        this.pointers.length = 0;
+        this.edges.length = 0;
+        this.tempEdge.lineObject.removeFromParent();
+        this.tempDrawPointer.pointerGroup.removeFromParent();
+        this.drawTrack.removeTrackLines();
+        
+        this.endDrawCallback();
+        
+        
+
+    }
+
+    public noDrawTemp(point: Vector2) {
+        this.drawTrack.getPointTrack(point);
+    }
+
+    public drawTemp(point: Vector2): boolean {
         
         let color = this.drawColor;
         this.drawTrack.updateOrtoTrackLine(point);
-        let fillColor = 0xFFFFFF;
-       
         
-        /**
-         * ORTO
-         */
-        const trackOrto = this.drawTrack.getOrtoTrack(point);
-        let tempPoint = trackOrto.point;
+        const trackPoint = this.getDrawTrack(point);
+        const tempPoint = trackPoint.point;
+    
+         
 
-        if(trackOrto.isPoint){
-            fillColor = this.drawTrack.ortoTrackColor;
+        this.tempEdge.endPoint = tempPoint;
+        
+        const edgeTrack = this.drawTrack.getEdgeTrack(this.tempEdge, 
+            (trackPoint.trackOrto.isTrackX || trackPoint.trackPoint.isTrackX), 
+            (trackPoint.trackOrto.isTrackY || trackPoint.trackPoint.isTrackY) 
+        );
+
+        if(edgeTrack.isPoint){
+            trackPoint.color = this.drawTrack.edgeTrackColor;
         }
-
-        /**
-         * Points
-         */
-        const trackPoints = this.drawTrack.getPointTrack(tempPoint);
-        tempPoint = trackPoints.point;
-       
-        if(trackPoints.isPoint){
-            fillColor = this.drawTrack.pointTrackColor;
-        }
-
-        this.tempDrawPointer.fillColor = new Color(fillColor); 
-
+        
+        this.tempDrawPointer.fillColor = new Color(trackPoint.color);
+        
+        //TODO - podczas przecinania nie sprawdzaj sledzonych krawedzi
         /**
          * Czy przecina inne krawedzie
          */
-
         const isIntr = this.intersectionWithDraw(tempPoint);
-
-        if(isIntr) {
+        if(isIntr && this.pointers.length > 0) {
             const dis = this.pointers[0].sPoint.distanceTo(tempPoint);
             if(!EditorMath.equalsDecimals(dis, 0, 0.00005)) {
                 color = this.collisionColor;
             }
         }
+        
 
         this.tempEdge.edgeColor = new Color(color);
-        this.tempDrawPointer.updateStartPoint(tempPoint.clone(), this.resolution);
-        this.tempEdge.endPoint = this.tempDrawPointer.sPoint;
-        this.tempEdge.updateModel(this.resolution);
+        this.tempDrawPointer.updateStartPoint(this.tempEdge.endPoint, this.resolution);
+        
 
+        this.tempEdge.updateModel(this.resolution);
+        
         return true;
         
     }
 
-    updateZoom(zoom: number): void {
+    public updateZoom(zoom: number): void {
 
         super.updateZoom(zoom);
         this.raycaster.updateReycaster();
@@ -113,13 +145,8 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
 
     drawClick(point: Vector2): boolean {
 
-        
-        const orto = this.drawTrack.getOrtoTrack(point);
-        let addPoint = orto.point;
-
-        const trackPoints = this.drawTrack.getPointTrack(addPoint);
-        addPoint = trackPoints.point;
-
+        const trackPoint = this.getDrawTrack(point);
+        const addPoint = trackPoint.point;
 
         let isLastPoint;
         const dis = this.pointers[0].sPoint.distanceTo(addPoint);
@@ -149,7 +176,8 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
          * Jezeli jest zakonczony ksztalt to zakoncz
          */
         if(isLastPoint) {
-
+            this.endDraw();
+            return true;
         }
 
         /**
@@ -225,4 +253,37 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
         return false;
     }
 
+    protected getDrawTrack(point:Vector2):{point: Vector2, color: number, trackOrto: IDrawTrackInfo, trackPoint: IDrawTrackInfo} {
+
+        let fillColor: number = 0xFFFFFF;
+         /**
+         * ORTO
+         */
+         const trackOrto = this.drawTrack.getOrtoTrack(point);
+         let tempPoint = trackOrto.point;
+ 
+         if(trackOrto.isPoint){
+             fillColor = this.drawTrack.ortoTrackColor;
+         }
+
+          /**
+         * Points
+         */
+        const trackPoints = this.drawTrack.getPointTrack(tempPoint);
+        tempPoint = trackPoints.point;
+       
+        if(trackPoints.isPoint){
+            fillColor = this.drawTrack.pointTrackColor;
+        }
+
+        
+
+        return {
+            point: tempPoint,
+            color: fillColor,
+            trackOrto: trackOrto,
+            trackPoint: trackPoints
+        }
+
+    }
 }

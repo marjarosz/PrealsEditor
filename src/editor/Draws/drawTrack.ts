@@ -4,11 +4,14 @@ import { EditorUtility } from "../../Utility/editorUtility";
 import { ITrackLine, TrackLine } from "./trackLine";
 import { EditorMath } from "../../Utility/editorMath";
 import { ArrayUtility } from "../../Utility/arrayUtility";
+import { IEditorEdge } from "../Edges/editorEdge";
 
 export interface IDrawTrackInfo {
 
     point: Vector2;
     isPoint: boolean;
+    isTrackX: boolean;
+    isTrackY: boolean;
 }
 
 export interface IDrawTrackInfoPointer extends IDrawTrack {
@@ -30,6 +33,10 @@ export interface IDrawTrack {
 
     pointTrackColor: number;
 
+    edgeTrackSize: number;
+
+    edgeTrackColor: number;
+
     setOrtoTrackLine(currentPoint: Vector2, point?: Vector2):void;
 
     updateOrtoTrackLine(point?:Vector2, startPoint?:Vector2):void;
@@ -46,9 +53,17 @@ export interface IDrawTrack {
 
     getPointTrack(point:Vector2):IDrawTrackInfo;
 
+    getEdgeTrack(edge: IEditorEdge, constX: boolean, constY: boolean): IDrawTrackInfo;
+
     addTrackingPoint(point:Vector2):void
 
     removeTrackingPoints(point:Vector2):void;
+
+    addTrackingEdge(edge: IEditorEdge):void;
+
+    removeTrackingEdge(edge: IEditorEdge):void;
+
+    removeTrackLines(): void;
 }
 
 export class DrawTrack implements IDrawTrack {
@@ -62,6 +77,10 @@ export class DrawTrack implements IDrawTrack {
     public pointTrackSize: number  = 2;
 
     public pointTrackColor: number = 0x00a7ff;
+
+    public edgeTrackSize: number = 2;
+
+    public edgeTrackColor: number = 0x000000;
 
     private _drawTrackEnable:boolean = true;
 
@@ -93,6 +112,8 @@ export class DrawTrack implements IDrawTrack {
 
 
     protected trackingPoints: Vector2[] = [];
+
+    protected trackingEdges: IEditorEdge[] = [];
 
     constructor(private readonly raycaster:IEditorRaycaster, private resolution:Vector2, private group:Group, private pixelRatio: number){
         
@@ -210,7 +231,9 @@ export class DrawTrack implements IDrawTrack {
 
         const ret:IDrawTrackInfo = {
             point: point,
-            isPoint: false
+            isPoint: false,
+            isTrackX: false,
+            isTrackY: false
         }
         /**
          * Os X
@@ -222,6 +245,7 @@ export class DrawTrack implements IDrawTrack {
             if(disY <= this.ortoTrackSize){
                 ret.point = new Vector2(point.x, this.xOrto.sPoint.y);
                 ret.isPoint = true;
+                ret.isTrackX = true;
             }
         }
         
@@ -235,6 +259,7 @@ export class DrawTrack implements IDrawTrack {
             if(disX <= this.ortoTrackSize) {
                 ret.point = new Vector2(this.yOrto.sPoint.x, point.y);
                 ret.isPoint = true;
+                ret.isTrackY = true;
             }
         }
 
@@ -245,6 +270,8 @@ export class DrawTrack implements IDrawTrack {
         const ret:IDrawTrackInfo = {
             point: point,
             isPoint: false,
+            isTrackX:false,
+            isTrackY:false
            
         }
 
@@ -291,17 +318,70 @@ export class DrawTrack implements IDrawTrack {
             this.setPointXTrackLine(pointX, new Vector2(pointX.x, point.y));
             ret.point = new Vector2(pointX.x, ret.point.y);
             ret.isPoint = true;
+            ret.isTrackX = true;
+            
         } 
 
         if(pointY) {
             this.setPointYTrackLine(pointY, new Vector2(point.x, pointY.y));
             ret.point = new Vector2(ret.point.x, pointY.y);
             ret.isPoint = true;
+            ret.isTrackY = true;
         } 
 
         
 
         return ret;
+    }
+
+    public getEdgeTrack(edge: IEditorEdge, constX: boolean = false, constY: boolean = false) {
+        
+        const ret:IDrawTrackInfo = {
+            point: edge.endPoint,
+            isPoint: false,
+            isTrackX: false,
+            isTrackY: false
+           
+        }
+
+        /**
+         * Jeżeli staly X i Y to zakoncz
+         */
+        if(constX && constY) {
+            return ret;
+        }
+     
+        for(const e of this.trackingEdges) {
+
+            const points = e.intersectionWithEdgePoint(edge);
+
+            for(const p of points) {
+                let dis = ret.point.distanceTo(p);
+                dis/= (2.6458333333 / this.raycaster.camera.zoom);
+
+                if(dis < this.edgeTrackSize) {
+
+                    ret.isPoint = true;
+
+                    if(constX) {
+                        ret.point.setY(p.y);
+                        return ret;
+                    }
+
+                    if(constY) {
+                        ret.point.setX(p.x);
+                        return ret;
+                    }
+                    
+                    ret.point.setX(p.x);
+                    ret.point.setY(p.y);
+                    return ret;
+                }
+            }
+        }
+
+        return ret;
+
     }
 
     public removeOrtoTrackLines(){
@@ -346,6 +426,20 @@ export class DrawTrack implements IDrawTrack {
 
         ArrayUtility.removeItemFromArray(this.trackingPoints, point);
 
+    }
+
+    public addTrackingEdge(edge: IEditorEdge) {
+        this.trackingEdges.push(edge);
+    }
+
+    public removeTrackingEdge(edge: IEditorEdge) {
+        ArrayUtility.removeItemFromArray(this.trackingEdges, edge);
+    }
+
+    public removeTrackLines(): void {
+        this.removeOrtoTrackLines();
+        this.removeXPointTrackLine();
+        this.removeYPointTrackLine();
     }
 
  

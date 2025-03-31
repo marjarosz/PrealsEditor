@@ -5,6 +5,7 @@ import { DrawPointerCircle } from "../Pointers/drawPointerCircle";
 import { IDrawPointer } from "../Pointers/drawPointer";
 import { IEditorEdge } from "../Edges/editorEdge";
 import { IDrawTrack } from "./drawTrack";
+import { CallbackMenager } from "../../Utility/callbackMenager";
 
 export interface IEditorDraw {
 
@@ -20,11 +21,21 @@ export interface IEditorDraw {
 
     drawTemp(point: Vector2):boolean;
 
+    noDrawTemp(point: Vector2):void;
+
     drawClick(point: Vector2):boolean;
 
     cancel():void;
 
+    endDraw():void;
+
+    subscribeEndDraw(callback: ()=>void):void;
+    
+    unsubscribeEndDraw(callback: ()=>void):void;
+
     drawColor:number;
+
+    
 
 }
 
@@ -35,6 +46,8 @@ export class EditorDraw {
     protected pointers: IDrawPointer[] = [];
 
     protected edges: IEditorEdge[] = [];
+
+    protected endDrawCallbacks: CallbackMenager<()=>void> = new CallbackMenager<()=>void>();
  
     constructor(public raycaster: IEditorRaycaster, protected drawTrack:IDrawTrack, protected readonly layer: IEditorLayer, protected resolution: Vector2, public scale: number, protected zoom:number) {
 
@@ -88,5 +101,15 @@ export class EditorDraw {
  
     }
     
+    subscribeEndDraw(callback: ()=>void){
+        this.endDrawCallbacks.addCallback(callback);
+    }
 
+    unsubscribeEndDraw(callback: ()=>void) {
+        this.unsubscribeEndDraw(callback);
+    }
+
+    protected endDrawCallback(){
+        this.endDrawCallbacks.callCallback();
+    }
 }

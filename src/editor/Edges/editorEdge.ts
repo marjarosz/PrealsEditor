@@ -178,6 +178,12 @@ export interface IEditorEdge extends IDrawObject{
      */
     intersectionWithEdge(edge:IEditorEdge):EditorMath.IntersectionType;
 
+    /**
+     * Zwraca punkty przeciecia sie segment linni  z segmentem krawedzi
+     * @param edge 
+     */
+    intersectionWithEdgePoint(edge:IEditorEdge): Vector2[];
+
 }
 
 export  class EdgeBase extends DrawObject{
@@ -348,6 +354,7 @@ export  class EdgeBase extends DrawObject{
         this.updateModel(resolution);
     }
 
+    //TODO - tymczasowo
     public intersectionWithEdge(edge:IEditorEdge):EditorMath.IntersectionType {
     
         let inters:EditorMath.IntersectionType = EditorMath.IntersectionType.noIntersection;
@@ -366,5 +373,30 @@ export  class EdgeBase extends DrawObject{
         return inters;
     }
     
+    //TODO - tymczasowo
+    public intersectionWithEdgePoint(edge:IEditorEdge): Vector2[] {
+
+        if(edge.edgeType == EdgeType.lineSegment) {
+            
+            const point = EditorMath.intersectionTwoSegmentPoint(this.startPoint, this.endPoint, edge.startPoint, edge.endPoint, EditorMath.TOLERANCE_0_10);
+            if(point){
+                return [point];
+            }
+        } else if (edge.edgeType == EdgeType.arc) {
+            const points = EditorMath.interstationLineSegmentArcPoints(this.startPoint, this.endPoint, 
+                (edge as IArcEdge).arcCenterPoint,
+                (edge as IArcEdge).radius, 
+                (edge as IArcEdge).startAngle, 
+                (edge as IArcEdge).endAngle, 
+                (edge as IArcEdge).clockwise
+            );
+
+            if(points) {
+                return points;
+            }
+        }
+        
+        return [];
+    }
 
 }

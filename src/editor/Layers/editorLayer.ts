@@ -1,5 +1,6 @@
 import { generateUUID } from "three/src/math/MathUtils";
 import { EditorLayerGroup, IEditorLayerGroup } from "./editorLayerGroup";
+import { ILayerObject } from "./layerObject";
 
 export interface IEditorLayer {
 
@@ -8,10 +9,12 @@ export interface IEditorLayer {
     readonly group: IEditorLayerGroup;
 
     renderOrder:number;
+
+    addLayerObject(object: ILayerObject):void;
 }
 
 
-export class EditorLayer implements IEditorLayer {
+export class EditorLayer  {
 
     public readonly uuid:string = generateUUID();
 

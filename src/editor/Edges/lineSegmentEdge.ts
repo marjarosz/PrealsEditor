@@ -6,6 +6,7 @@ import { Object3DUtility } from "../../Utility/object3DUtility";
 import { ILineEdgeDataExport } from "./edgeData";
 import { EdgeBase, EdgeType, IEditorEdge } from "./editorEdge";
 import { ILineSegment, LineSegment } from "../Segments/lineSegment";
+import { IArcEdge } from "./arcEdge";
 
 
 
@@ -249,7 +250,49 @@ export class LineSegmentEdge extends EdgeBase implements ILineSegmentEdge{
     }
 
 
+    public intersectionWithEdge(edge:IEditorEdge):EditorMath.IntersectionType {
+        
+        let inters:EditorMath.IntersectionType = EditorMath.IntersectionType.noIntersection;
+        
+        if(edge.edgeType == EdgeType.lineSegment) {
+            return  EditorMath.intersectionTwoLineSegment(this.startPoint, this.endPoint, edge.startPoint, edge.endPoint);
+        } else if (edge.edgeType == EdgeType.arc) {
+            return EditorMath.interstationLineSegmentArc(this.startPoint, this.endPoint, 
+                (edge as IArcEdge).arcCenterPoint, 
+                (edge as IArcEdge).radius, 
+                (edge as IArcEdge).startAngle, 
+                (edge as IArcEdge).endAngle, 
+                (edge as IArcEdge).clockwise);
+        }
+               
+        return inters;
+    }
    
+
+    public intersectionWithEdgePoint(edge:IEditorEdge): Vector2[] {
+
+        if(edge.edgeType == EdgeType.lineSegment) {
+            
+            const point = EditorMath.intersectionTwoSegmentPoint(this.startPoint, this.endPoint, edge.startPoint, edge.endPoint, EditorMath.TOLERANCE_0_10);
+            if(point){
+                return [point];
+            }
+        } else if (edge.edgeType == EdgeType.arc) {
+            const points = EditorMath.interstationLineSegmentArcPoints(this.startPoint, this.endPoint, 
+                (edge as IArcEdge).arcCenterPoint,
+                (edge as IArcEdge).radius, 
+                (edge as IArcEdge).startAngle, 
+                (edge as IArcEdge).endAngle, 
+                (edge as IArcEdge).clockwise
+            );
+
+            if(points) {
+                return points;
+            }
+        }
+        
+        return [];
+    }
 
 }
 
