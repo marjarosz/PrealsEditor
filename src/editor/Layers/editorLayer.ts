@@ -11,6 +11,8 @@ export interface IEditorLayer {
     renderOrder:number;
 
     addLayerObject(object: ILayerObject):void;
+
+    readonly layerObjects: ILayerObject[];
 }
 
 

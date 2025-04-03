@@ -184,6 +184,14 @@ export interface IEditorEdge extends IDrawObject{
      */
     intersectionWithEdgePoint(edge:IEditorEdge): Vector2[];
 
+    /**
+     * 
+     * Zwraca punkt przeciecia sie prostej z punktu i prostopadlej do tej krawedzi
+     * 
+     * @param pont 
+     */
+    intersectionPerpendicular(pont: Vector2):Vector2;
+
 }
 
 export  class EdgeBase extends DrawObject{
@@ -397,6 +405,11 @@ export  class EdgeBase extends DrawObject{
         }
         
         return [];
+    }
+
+    //TODO - tymczasoso - po wdrozeniu ARC usunac
+    public intersectionPerpendicular(pont: Vector2) {
+        return EditorMath.intersectionPerpendicularLines(this.startPoint, this.endPoint, pont);
     }
 
 }

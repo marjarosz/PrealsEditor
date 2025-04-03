@@ -6,11 +6,15 @@ import { ILineSegmentEdge, LineSegmentEdge } from "../Edges/lineSegmentEdge";
 import { IEditorRaycaster } from "../editorRaycaster";
 import { IEditorLayer } from "../Layers/editorLayer";
 import { DrawPointerCircleCross } from "../Pointers/drawPointerCircleCross";
-import { IDrawTrack, IDrawTrackInfo } from "./drawTrack";
+import { IDrawTrack, IDrawTrackInfo, IDrawTrackInfoEdge, IDrawTrackInfoPointEdge } from "./drawTrack";
 import { EditorMath } from "../../Utility/editorMath";
-import { EditorWall } from "../Wall/editorWall";
+import { EditorWall, IEditorWall } from "../Wall/editorWall";
+import { IEditorEdge } from "../Edges/editorEdge";
 
-
+interface IntersectionWithDrawInfo {
+    intersection: boolean;
+    isLastPoint: boolean;
+}
 
 export interface IEditorDrawFree extends IEditorDraw{
 
@@ -37,7 +41,8 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
     }
 
     public startDraw(point: Vector2): void {
-        
+        this.drawTrack.removeTrackLines();
+
         const startPointTrack = this.drawTrack.getPointTrack(point);
         const startPoint = startPointTrack.point;
 
@@ -60,6 +65,7 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
             e.lineObject.setColor(new Color(0x000000));
             const wall = new EditorWall();
             wall.edges.push(e);
+            this.layer.addLayerObject(wall);
             this.drawTrack.addTrackingEdge(e);
             
         }
@@ -81,7 +87,30 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
     }
 
     public noDrawTemp(point: Vector2) {
-        this.drawTrack.getPointTrack(point);
+        
+        /**
+         * Sledzenie punktow
+         */
+        const trackPoint = this.drawTrack.getPointTrack(point);
+        const edgePoint = this.drawTrack.getPointToEdgeTrack(trackPoint.point);
+
+        let color: number = 0xFFFFFF;
+        this.tempDrawPointer.pointerGroup.removeFromParent();
+        if(trackPoint.isPoint) {
+            this.tempDrawPointer.updateStartPoint(trackPoint.point, this.resolution);
+            this.layer.group.add(this.tempDrawPointer.pointerGroup);
+            color = this.drawTrack.pointTrackColor;
+        }
+          
+        if (edgePoint.isPoint) {
+            this.tempDrawPointer.updateStartPoint(edgePoint.point, this.resolution);
+            this.layer.group.add(this.tempDrawPointer.pointerGroup);  
+
+            color = ((edgePoint as IDrawTrackInfoPointEdge).isCollinearly) ? this.drawTrack.collinearlyTrackColor : this.drawTrack.edgeTrackColor;
+        } 
+       
+        this.tempDrawPointer.setFillColor(color);
+
     }
 
     public drawTemp(point: Vector2): boolean {
@@ -92,8 +121,6 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
         const trackPoint = this.getDrawTrack(point);
         const tempPoint = trackPoint.point;
     
-         
-
         this.tempEdge.endPoint = tempPoint;
         
         const edgeTrack = this.drawTrack.getEdgeTrack(this.tempEdge, 
@@ -101,24 +128,28 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
             (trackPoint.trackOrto.isTrackY || trackPoint.trackPoint.isTrackY) 
         );
 
+
         if(edgeTrack.isPoint){
             trackPoint.color = this.drawTrack.edgeTrackColor;
         }
         
         this.tempDrawPointer.fillColor = new Color(trackPoint.color);
         
-        //TODO - podczas przecinania nie sprawdzaj sledzonych krawedzi
         /**
          * Czy przecina inne krawedzie
          */
-        const isIntr = this.intersectionWithDraw(tempPoint);
-        if(isIntr && this.pointers.length > 0) {
-            const dis = this.pointers[0].sPoint.distanceTo(tempPoint);
-            if(!EditorMath.equalsDecimals(dis, 0, 0.00005)) {
-                color = this.collisionColor;
-            }
-        }
+
+        const isIntr = this.intersectionWithDraw(tempPoint, (edgeTrack as IDrawTrackInfoEdge).edges);
+        // if(isIntr.intersection && this.pointers.length > 0) {
+        //     const dis = this.pointers[0].sPoint.distanceTo(tempPoint);
+        //     if(!EditorMath.equalsDecimals(dis, 0, 0.00005)) {
+        //         color = this.collisionColor;
+        //     }
+        // }
         
+        if(isIntr.intersection) {
+            color = this.collisionColor;
+        }
 
         this.tempEdge.edgeColor = new Color(color);
         this.tempDrawPointer.updateStartPoint(this.tempEdge.endPoint, this.resolution);
@@ -145,24 +176,37 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
 
     drawClick(point: Vector2): boolean {
 
-        const trackPoint = this.getDrawTrack(point);
-        const addPoint = trackPoint.point;
+        
 
-        let isLastPoint;
-        const dis = this.pointers[0].sPoint.distanceTo(addPoint);
-        if(EditorMath.equalsDecimals(dis, 0, 0.00005)) {
-            isLastPoint = true;
+        const trackPoint = this.getDrawTrack(point);
+        let addPoint = trackPoint.point;
+
+        let isLastPoint = false;
+        
+        const edgeTrack = this.drawTrack.getEdgeTrack(this.tempEdge, 
+            (trackPoint.trackOrto.isTrackX || trackPoint.trackPoint.isTrackX), 
+            (trackPoint.trackOrto.isTrackY || trackPoint.trackPoint.isTrackY) 
+        );
+
+        if(edgeTrack.isPoint) {
+            addPoint = edgeTrack.point;
         }
+
+        isLastPoint = (edgeTrack as IDrawTrackInfoEdge).startOrEndPoint;
 
         /**
          * Czy przecina narysowane krawedzie
          */
-        if(!isLastPoint) {
-            const isIntr = this.intersectionWithDraw(addPoint);
-            if(isIntr) {
-                return false;
-            }
+        const isIntr = this.intersectionWithDraw(addPoint, (edgeTrack as IDrawTrackInfoEdge).edges);
+        
+        if(isIntr.intersection) {
+            /**
+             * Jest przeciecie - zwraca false
+             */
+            return false;
         }
+        
+        isLastPoint =  isLastPoint || isIntr.isLastPoint || edgeTrack.isPoint;
         /**
          * Dodaj linie
          */
@@ -235,22 +279,54 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
         
     }
 
-    protected intersectionWithDraw(point: Vector2){
+    protected intersectionWithDraw(point: Vector2, excludeEdge: IEditorEdge[]):IntersectionWithDrawInfo {
+        
+        const ret: IntersectionWithDrawInfo  = {
+            intersection: false,
+            isLastPoint: false
+        }
+        
         /**
-         * Czy przecina inne krawedzie
+         * Czy przecina inne rysowane krawedzie
          */
         for(let i = 0; i < this.edges.length - 1; ++i) {
             const intr = this.edges[i].intersectionWithEdge(this.tempEdge);
             if(intr != EditorMath.IntersectionType.noIntersection) {
-                /**
-                 * Czy klikniecie na punk koncowy
-                 */
-                return true;
+
+                const dis = this.pointers[0].sPoint.distanceTo(point);
+                if(EditorMath.equalsDecimals(dis, 0, 0.00005)) {
+                    ret.isLastPoint = true;
+                } else {
+                    ret.intersection = true;
+                }
+                return ret;
 
             }
         }
 
-        return false;
+        /**
+         * Czy przecina pozostale krawedzie z warstwy
+         */
+
+        for(const obj of this.layer.layerObjects as IEditorWall[]) {
+
+           
+            for(const edg of obj.edges) {
+                const isExclude = excludeEdge.find(x=>x.uuid === edg.uuid);
+
+                if(!isExclude) {
+                    const inter = edg.intersectionWithEdge(this.tempEdge);
+
+                    if(inter != EditorMath.IntersectionType.noIntersection) {
+                        ret.intersection = true;
+                        return ret;
+                    }
+                }
+            }
+
+        }
+
+        return ret;
     }
 
     protected getDrawTrack(point:Vector2):{point: Vector2, color: number, trackOrto: IDrawTrackInfo, trackPoint: IDrawTrackInfo} {

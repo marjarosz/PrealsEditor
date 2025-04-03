@@ -14,6 +14,10 @@ export class EditorDrawLayer extends EditorLayer implements IEditorDrawLayer {
 
     protected walls: IEditorWall[] = [];
 
+    get layerObjects(){
+        return this.walls;
+    }
+
     addLayerObject(wall: IEditorWall): void {
         
         this.walls.push(wall);
