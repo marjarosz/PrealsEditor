@@ -6,7 +6,7 @@ import { ILineSegmentEdge, LineSegmentEdge } from "../Edges/lineSegmentEdge";
 import { IEditorRaycaster } from "../editorRaycaster";
 import { IEditorLayer } from "../Layers/editorLayer";
 import { DrawPointerCircleCross } from "../Pointers/drawPointerCircleCross";
-import { IDrawTrack, IDrawTrackInfo, IDrawTrackInfoEdge, IDrawTrackInfoPointEdge } from "./drawTrack";
+import { IDrawTrack, IDrawTrackInfo, IDrawTrackInfoCollinearly, IDrawTrackInfoEdge, IDrawTrackInfoPointEdge } from "./drawTrack";
 import { EditorMath } from "../../Utility/editorMath";
 import { EditorWall, IEditorWall } from "../Wall/editorWall";
 import { IEditorEdge } from "../Edges/editorEdge";
@@ -43,8 +43,15 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
     public startDraw(point: Vector2): void {
         this.drawTrack.removeTrackLines();
 
-        const startPointTrack = this.drawTrack.getPointTrack(point);
-        const startPoint = startPointTrack.point;
+        const coll = this.drawTrack.getCollinearlyTrack(point);
+        let startPoint = coll.point;
+
+        const startPointTrack = this.drawTrack.getPointTrack(startPoint);
+        if(startPointTrack.isPoint) {
+            startPoint = startPointTrack.point;
+            this.checkCollinearlyTrack(startPointTrack, coll as IDrawTrackInfoCollinearly, startPoint);
+        }
+        
 
         this.drawPointer(startPoint);
         this.tempDrawPointer.updateStartPoint(startPoint.clone(), this.resolution);
@@ -93,6 +100,7 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
          */
         const trackPoint = this.drawTrack.getPointTrack(point);
         const edgePoint = this.drawTrack.getPointToEdgeTrack(trackPoint.point);
+        
 
         let color: number = 0xFFFFFF;
         this.tempDrawPointer.pointerGroup.removeFromParent();
@@ -105,7 +113,7 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
         if (edgePoint.isPoint) {
             this.tempDrawPointer.updateStartPoint(edgePoint.point, this.resolution);
             this.layer.group.add(this.tempDrawPointer.pointerGroup);  
-
+          
             color = ((edgePoint as IDrawTrackInfoPointEdge).isCollinearly) ? this.drawTrack.collinearlyTrackColor : this.drawTrack.edgeTrackColor;
         } 
        
@@ -342,17 +350,31 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
              fillColor = this.drawTrack.ortoTrackColor;
          }
 
-          /**
+        /**
+         * Wspoliniowosc
+         */
+
+         
+        const coll = this.drawTrack.getCollinearlyTrack(point) as IDrawTrackInfoCollinearly;
+        tempPoint = coll.point;
+
+        if(coll.isPoint) {
+            fillColor = this.drawTrack.collinearlyTrackColor;
+        }
+
+        /**
          * Points
          */
         const trackPoints = this.drawTrack.getPointTrack(tempPoint);
         tempPoint = trackPoints.point;
-       
+        
         if(trackPoints.isPoint){
             fillColor = this.drawTrack.pointTrackColor;
+
+            this.checkCollinearlyTrack(trackPoints, coll, tempPoint);
+
         }
 
-        
 
         return {
             point: tempPoint,
@@ -361,5 +383,39 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
             trackPoint: trackPoints
         }
 
+    }
+
+    private checkCollinearlyTrack(trackPoints: IDrawTrackInfo, coll:IDrawTrackInfoCollinearly, tempPoint:Vector2){
+       
+        if(coll.isPoint && trackPoints.isTrackX != trackPoints.isTrackY) {
+
+            if(trackPoints.isTrackX) {
+
+                console.log("X")
+
+                for(const ce of coll.edges) {
+                    const np = EditorMath.intersectionTwoLinePoint(ce.startPoint, ce.endPoint, tempPoint, new Vector2(tempPoint.x, tempPoint.y+1));
+                    if(np) {
+                        tempPoint.x = np.x;
+                        tempPoint.y = np.y;
+                    }
+                }
+
+            } else if(trackPoints.isTrackY) {
+
+                console.log("Y")
+
+                for(const ce of coll.edges) {
+                    const np = EditorMath.intersectionTwoLinePoint(ce.startPoint, ce.endPoint, tempPoint, new Vector2(tempPoint.x + 1, tempPoint.y));
+                    if(np) {
+                        tempPoint.x = np.x;
+                        tempPoint.y = np.y;
+                    }
+                }
+
+            }
+
+        }
+        
     }
 }

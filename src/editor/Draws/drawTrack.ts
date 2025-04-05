@@ -28,9 +28,15 @@ export interface IDrawTrackInfoPointEdge extends IDrawTrackInfo{
 
 }
 
+export interface IDrawTrackInfoCollinearly extends IDrawTrackInfo {
+    edges: IEditorEdge[]
+}
+
 export interface IDrawTrackInfoPointer extends IDrawTrack {
 
 }
+
+
 
 export interface IDrawTrack {
 
@@ -92,6 +98,14 @@ export interface IDrawTrack {
      * @param constY nie zmieniaj wartosci Y
      */
     getEdgeTrack(edge: IEditorEdge, constX: boolean, constY: boolean): IDrawTrackInfo;
+
+    /**
+     * 
+     * Zwraca sledzenie wsoliniowosci
+     * 
+     * @param point 
+     */
+    getCollinearlyTrack(point: Vector2):IDrawTrackInfo;
 
     /**
      * 
@@ -326,8 +340,8 @@ export class DrawTrack implements IDrawTrack {
         const ret:IDrawTrackInfo = {
             point: point,
             isPoint: false,
-            isTrackX:false,
-            isTrackY:false
+            isTrackX: false,
+            isTrackY: false
            
         }
 
@@ -466,6 +480,47 @@ export class DrawTrack implements IDrawTrack {
 
     }
 
+    public getCollinearlyTrack(point: Vector2) {
+
+        let ret:IDrawTrackInfoCollinearly = {
+            point: point,
+            isPoint: false,
+            isTrackX: false,
+            isTrackY: false,
+            edges:[]
+        }
+
+        this.removeCollinearlyTrackLine();
+        for(const e of this.trackingEdges) {
+
+            try {
+
+                const pp = e.intersectionPerpendicular(point);
+
+                if(!EditorMath.pointOnLineSegment(e.startPoint, e.endPoint, pp)) {
+
+                    let dis = point.distanceTo(pp);
+                    dis /= (2.6458333333 / this.raycaster.camera.zoom);
+
+                    if(dis < this.collinearlyTrackSize) {
+
+                        this.collinearlyTrackLine =  this.createDashedTrackLine(e.startPoint, pp, this.collinearlyTrackColor, this.collinearlyTrackSize);
+                        ret = this.setDrawTrackInfo(ret, pp, true, true, true) as IDrawTrackInfoCollinearly;
+                        ret.edges.push(e);
+                        return ret;
+                    }
+
+                }
+
+            } catch(e) {
+
+            }
+
+        } 
+        
+        return ret;
+    }
+
     private checkStartEndPoint(ePoint: Vector2, point: Vector2){
 
         let epDis = ePoint.distanceTo(point);
@@ -526,8 +581,7 @@ export class DrawTrack implements IDrawTrack {
                 if(dis < this.edgeTrackSize) {
     
                     if(EditorMath.onSegment(e.startPoint, e.endPoint, pp)) {
-                        //TODO - dopisac sledzenie wspolliniowosci
-                        
+                      
                         return this.setDrawTrackInfoPointEdge(ret, pp, true, true, true);
                     } else {
                         this.collinearlyTrackLine =  this.createDashedTrackLine(e.startPoint, pp, this.collinearlyTrackColor, this.collinearlyTrackSize);
