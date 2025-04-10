@@ -422,23 +422,23 @@ export class DrawTrack implements IDrawTrack {
             */
 
             if(this.checkStartEndPoint(e.endPoint, ret.point)) {
-                ret.point = edge.endPoint;
+                ret.point = e.endPoint;
                 ret.isPoint = true;
                 ret.edges.push(...this.trackingEdges.filter(x=>EditorMath.equalsVectors(x.startPoint, e.endPoint, EditorMath.TOLERANCE_0_10)));
                 ret.edges.push(...this.trackingEdges.filter(x=>EditorMath.equalsVectors(x.endPoint, e.endPoint, EditorMath.TOLERANCE_0_10)));
                 ret.startOrEndPoint = true;
-                edge.endPoint = ret.point;
+                //edge.endPoint = ret.point;
                 return ret;
             }
 
 
             if(this.checkStartEndPoint(e.startPoint, ret.point)) {
-                ret.point = edge.startPoint;
+                ret.point = e.startPoint;
                 ret.isPoint = true;
                 ret.edges.push(...this.trackingEdges.filter(x=>EditorMath.equalsVectors(x.startPoint, e.startPoint, EditorMath.TOLERANCE_0_10)));
                 ret.edges.push(...this.trackingEdges.filter(x=>EditorMath.equalsVectors(x.endPoint, e.startPoint, EditorMath.TOLERANCE_0_10)));
                 ret.startOrEndPoint = true;
-                edge.startPoint = ret.point;
+               // edge.startPoint = ret.point;
                 return ret;
             }
 

@@ -10,6 +10,7 @@ import { IDrawTrack, IDrawTrackInfo, IDrawTrackInfoCollinearly, IDrawTrackInfoEd
 import { EditorMath } from "../../Utility/editorMath";
 import { EditorWall, IEditorWall } from "../Wall/editorWall";
 import { IEditorEdge } from "../Edges/editorEdge";
+import { IEditorDrawLayer } from "../Layers/editorDrawLayer";
 
 interface IntersectionWithDrawInfo {
     intersection: boolean;
@@ -31,7 +32,7 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
 
     private tempEdge: ILineSegmentEdge;
     
-    
+    private startExcludeEdge: IEditorEdge[] = [];
 
     constructor(raycaster: IEditorRaycaster,drawTrack:IDrawTrack, layer: IEditorLayer, resolution: Vector2, scale: number, zoom:number){
         super(raycaster, drawTrack,layer, resolution, scale, zoom);
@@ -50,6 +51,13 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
         if(startPointTrack.isPoint) {
             startPoint = startPointTrack.point;
             this.checkCollinearlyTrack(startPointTrack, coll as IDrawTrackInfoCollinearly, startPoint);
+
+            /**
+             * Znajdz krawedzie ktore zawieraja ten punkt
+             */
+            
+            this.startExcludeEdge.push(...(this.layer as IEditorDrawLayer).getEdgesByCommonPoint(startPoint));
+
         }
         
 
@@ -75,8 +83,10 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
             this.layer.addLayerObject(wall);
             this.drawTrack.addTrackingEdge(e);
             
+
         }
 
+    
         for(const p of this.pointers){
             p.dispose();
         }
@@ -147,7 +157,7 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
          * Czy przecina inne krawedzie
          */
 
-        const isIntr = this.intersectionWithDraw(tempPoint, (edgeTrack as IDrawTrackInfoEdge).edges);
+        const isIntr = this.intersectionWithDraw(tempPoint, [...this.startExcludeEdge,...(edgeTrack as IDrawTrackInfoEdge).edges]);
         // if(isIntr.intersection && this.pointers.length > 0) {
         //     const dis = this.pointers[0].sPoint.distanceTo(tempPoint);
         //     if(!EditorMath.equalsDecimals(dis, 0, 0.00005)) {
@@ -196,6 +206,7 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
             (trackPoint.trackOrto.isTrackY || trackPoint.trackPoint.isTrackY) 
         );
 
+   
         if(edgeTrack.isPoint) {
             addPoint = edgeTrack.point;
         }
@@ -205,7 +216,7 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
         /**
          * Czy przecina narysowane krawedzie
          */
-        const isIntr = this.intersectionWithDraw(addPoint, (edgeTrack as IDrawTrackInfoEdge).edges);
+        const isIntr = this.intersectionWithDraw(addPoint,[...this.startExcludeEdge ,...(edgeTrack as IDrawTrackInfoEdge).edges]);
         
         if(isIntr.intersection) {
             /**
@@ -218,16 +229,23 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
         /**
          * Dodaj linie
          */
-        const edge = new LineSegmentEdge(this.pointers[this.pointers.length-1].sPoint, addPoint, this.resolution, this.lineWidth, this.drawColor);
+
+        const sP = (this.edges.length > 0) ? this.edges[this.edges.length - 1].endPoint : this.pointers[this.pointers.length-1].sPoint;
+
+        
+        const edge = new LineSegmentEdge(sP, addPoint, this.resolution, this.lineWidth, this.drawColor);
         edge.renderOrder = this.layer.renderOrder + 1;
         edge.updateModel(this.resolution);
         this.edges.push(edge);
         this.layer.group.add(edge.lineObject);
 
+        this.startExcludeEdge.length = 0;
+
         /**
          * Jezeli jest zakonczony ksztalt to zakoncz
          */
         if(isLastPoint) {
+           
             this.endDraw();
             return true;
         }
@@ -391,8 +409,6 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
 
             if(trackPoints.isTrackX) {
 
-                console.log("X")
-
                 for(const ce of coll.edges) {
                     const np = EditorMath.intersectionTwoLinePoint(ce.startPoint, ce.endPoint, tempPoint, new Vector2(tempPoint.x, tempPoint.y+1));
                     if(np) {
@@ -402,8 +418,6 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
                 }
 
             } else if(trackPoints.isTrackY) {
-
-                console.log("Y")
 
                 for(const ce of coll.edges) {
                     const np = EditorMath.intersectionTwoLinePoint(ce.startPoint, ce.endPoint, tempPoint, new Vector2(tempPoint.x + 1, tempPoint.y));
