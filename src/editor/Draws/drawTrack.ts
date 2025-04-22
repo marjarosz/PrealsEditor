@@ -25,7 +25,7 @@ export interface IDrawTrackInfoEdge extends IDrawTrackInfo {
 export interface IDrawTrackInfoPointEdge extends IDrawTrackInfo{
 
     isCollinearly: boolean;
-
+    edges: IEditorEdge[];
 }
 
 export interface IDrawTrackInfoCollinearly extends IDrawTrackInfo {
@@ -120,7 +120,7 @@ export interface IDrawTrack {
 
     removeTrackingPoints(point:Vector2):void;
 
-    addTrackingEdge(edge: IEditorEdge):void;
+    addTrackingEdge(...edge: IEditorEdge[]):void;
 
     removeTrackingEdge(edge: IEditorEdge):void;
 
@@ -556,7 +556,8 @@ export class DrawTrack implements IDrawTrack {
             isPoint: false,
             isTrackX:false,
             isTrackY:false,
-            isCollinearly: false
+            isCollinearly: false,
+            edges: []
         }
 
         this.removeCollinearlyTrackLine();
@@ -579,9 +580,10 @@ export class DrawTrack implements IDrawTrack {
                 dis /= (2.6458333333 / this.raycaster.camera.zoom);
     
                 if(dis < this.edgeTrackSize) {
-    
+                    ret.edges.push(e);
                     if(EditorMath.onSegment(e.startPoint, e.endPoint, pp)) {
                       
+                        
                         return this.setDrawTrackInfoPointEdge(ret, pp, true, true, true);
                     } else {
                         this.collinearlyTrackLine =  this.createDashedTrackLine(e.startPoint, pp, this.collinearlyTrackColor, this.collinearlyTrackSize);
@@ -645,8 +647,9 @@ export class DrawTrack implements IDrawTrack {
 
     }
 
-    public addTrackingEdge(edge: IEditorEdge) {
-        this.trackingEdges.push(edge);
+    public addTrackingEdge(...edge: IEditorEdge[]) {
+        this.trackingEdges.push(...edge);
+        
     }
 
     public removeTrackingEdge(edge: IEditorEdge) {

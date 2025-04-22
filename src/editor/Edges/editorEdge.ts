@@ -76,6 +76,8 @@ export interface IEditorEdge extends IDrawObject{
      */
     readonly angle: number;
 
+    readonly containetInUuids: string[];
+
     /**
      * etap rysowania ksztaltu
      * @param shape 
@@ -192,6 +194,14 @@ export interface IEditorEdge extends IDrawObject{
      */
     intersectionPerpendicular(pont: Vector2):Vector2;
 
+    /**
+     * 
+     * Dzieli krawedz na podstawie punktu i zwraca utworzone krawedzie
+     * 
+     * @param point 
+     */
+    devide(point: Vector2): IEditorEdge[];
+
 }
 
 export  class EdgeBase extends DrawObject{
@@ -265,7 +275,7 @@ export  class EdgeBase extends DrawObject{
         return this._centerPoint;
     }
 
-
+    readonly containetInUuids: string[] = [];
 
 
     constructor(public readonly edgeType: EdgeType, sPoint?: Vector2, ePoint?: Vector2, resolution?: Vector2, lineWidth?: number, color?: number, opacity?: number){
@@ -410,6 +420,11 @@ export  class EdgeBase extends DrawObject{
     //TODO - tymczasoso - po wdrozeniu ARC usunac
     public intersectionPerpendicular(pont: Vector2) {
         return EditorMath.intersectionPerpendicularLines(this.startPoint, this.endPoint, pont);
+    }
+
+    //TODO - tymczasowo - po wdrozeniu arc usunac
+    public devide(point: Vector2): IEditorEdge[] {
+        return [];
     }
 
 }

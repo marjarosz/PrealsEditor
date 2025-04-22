@@ -294,6 +294,17 @@ export class LineSegmentEdge extends EdgeBase implements ILineSegmentEdge{
         return [];
     }
 
+    public devide(point: Vector2): IEditorEdge[] {
+        
+        const ret: IEditorEdge[] =[];
+
+        ret.push(new LineSegmentEdge(this.startPoint, point, this.resolution, this.material.linewidth, this.material.color.getHex(), this.material.opacity));
+        ret.push(new LineSegmentEdge(point, this.endPoint, this.resolution, this.material.linewidth, this.material.color.getHex(), this.material.opacity));
+
+        return ret;
+
+    }
+
 }
 
 export interface ILineSegmentEdgeDsashed extends ILineSegmentEdge {

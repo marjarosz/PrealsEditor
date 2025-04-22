@@ -1,6 +1,7 @@
 import { generateUUID } from "three/src/math/MathUtils";
 import { EditorLayerGroup, IEditorLayerGroup } from "./editorLayerGroup";
 import { ILayerObject } from "./layerObject";
+import { IDrawTrack } from "../Draws/drawTrack";
 
 export interface IEditorLayer {
 
@@ -11,6 +12,9 @@ export interface IEditorLayer {
     renderOrder:number;
 
     addLayerObject(object: ILayerObject):void;
+
+    setDrawTrack(drawTrack: IDrawTrack): void;
+
 
     readonly layerObjects: ILayerObject[];
 }
