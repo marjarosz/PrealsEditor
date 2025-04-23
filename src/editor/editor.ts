@@ -94,6 +94,8 @@ export interface IEditor {
      */
     cancelAction(runCallbacks?: boolean): void;
 
+    selectAction(): void;
+
     /**
      * Rozpocznij rysowanie
      * @param drawType - typ rysowania
@@ -482,6 +484,10 @@ export class Editor implements IEditor{
         }
         
 
+   }
+
+   public selectAction(): void {
+        this.cancelAction();
    }
 
    public startDraw(drawType: EditorDrawType){

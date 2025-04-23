@@ -384,6 +384,8 @@ export class DrawTrack implements IDrawTrack {
         this.removeXPointTrackLine();
         this.removeYPointTrackLine();
 
+       
+
         if(pointX) {
             this.setPointXTrackLine(pointX, new Vector2(pointX.x, point.y));
             ret.point = new Vector2(pointX.x, ret.point.y);

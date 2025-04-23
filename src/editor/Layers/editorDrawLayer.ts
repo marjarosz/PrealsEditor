@@ -1,4 +1,4 @@
-import { Vector2 } from "three";
+import { Color, Vector2 } from "three";
 import { IEditorEdge } from "../Edges/editorEdge";
 import { EditorWall, IEditorWall } from "../Wall/editorWall";
 import { EditorLayer, IEditorLayer } from "./editorLayer";
@@ -13,7 +13,9 @@ export interface IEditorDrawLayer extends IEditorLayer {
 
     getEdgesByCommonPoint(point: Vector2): IEditorEdge[];
 
-    devicedEdges: IEditorEdge[];
+    addWallsFromEdges(edges: IEditorEdge[], setEdgeColor?: number): void;
+
+    devidedEdges: IEditorEdge[];
 
     fromDevidedEdges: IEditorEdge[];
 }
@@ -26,7 +28,7 @@ export class EditorDrawLayer extends EditorLayer implements IEditorDrawLayer {
 
     protected edges: IEditorEdge[] = [];
 
-    public devicedEdges: IEditorEdge[] = [];
+    public devidedEdges: IEditorEdge[] = [];
     public fromDevidedEdges: IEditorEdge[] = [];
 
     get layerObjects(){
@@ -43,9 +45,6 @@ export class EditorDrawLayer extends EditorLayer implements IEditorDrawLayer {
          * punktu poczatkowego lub koncowego
          * to dzieli sciany
          */
-
-        this.devicedEdges.length = 0;
-        this.fromDevidedEdges.length = 0;
 
         const toChange: {edge: IEditorEdge, point: Vector2} [] = [];
 
@@ -81,7 +80,6 @@ export class EditorDrawLayer extends EditorLayer implements IEditorDrawLayer {
         this.walls.push(wall);
         this.edges.push(...wall.edges);
 
-        console.log(toChange.length)
         /**
          * Podziel krawedzie
          */
@@ -109,11 +107,47 @@ export class EditorDrawLayer extends EditorLayer implements IEditorDrawLayer {
                 ArrayUtility.removeItemByFieldValue(this.walls, 'uuid', uuid);
             }
 
-            this.devicedEdges.push(dEdge.edge);
+            this.devidedEdges.push(dEdge.edge);
             
         }
 
         
+
+    }
+
+    public addWallsFromEdges(edges: IEditorEdge[], setEdgeColor?: number): void{
+
+        this.devidedEdges.length = 0;
+        this.fromDevidedEdges.length = 0;
+        for(const e of edges) {
+
+            if(setEdgeColor != undefined) {
+                e.lineObject.setColor(new Color(setEdgeColor));
+            }
+
+            const wall  =new EditorWall();
+            wall.addEdge(e);
+            this.addLayerObject(wall);
+        }
+
+        /**
+         * Czy dzielimy pomieszczenia
+         */
+        if(this.devidedEdges.length > 0){
+            console.log("Jest podzial - sprawdz czy nie utworzyc nowych pomieszczen")
+        }
+
+
+        /**
+         * Czy nowe pomieszczenie uzyskane z samozamknietych  krawedzi
+         */
+        if(edges.length > 2) {
+
+            if (EditorMath.equalsVectors(edges[0].startPoint, edges[edges.length-1].endPoint, EditorMath.TOLERANCE_0_10)){
+                console.log("Samoprzecinajace sie")
+            }
+
+        }
 
     }
 

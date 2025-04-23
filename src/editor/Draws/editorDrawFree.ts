@@ -49,8 +49,8 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
         let startPoint = coll.point;
 
         const startPointTrack = this.drawTrack.getPointTrack(startPoint);
-
-        if(startPointTrack.isPoint) {
+       
+        if(startPointTrack.isPoint && startPointTrack.isTrackX && startPointTrack.isTrackY) {
             startPoint = startPointTrack.point;
             this.checkCollinearlyTrack(startPointTrack, coll as IDrawTrackInfoCollinearly, startPoint);
 
@@ -62,7 +62,7 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
 
         } else {
             const edgePoint = this.drawTrack.getPointToEdgeTrack(startPoint);
-            
+         
             if(edgePoint.isPoint) {
                 startPoint = edgePoint.point;
                 this.startExcludeEdge.push(...(edgePoint as IDrawTrackInfoPointEdge).edges);
@@ -93,16 +93,17 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
 
         
 
-        for(const e of this.edges) {
-            e.lineObject.setColor(new Color(0x000000));
-            const wall = new EditorWall();
-            wall.addEdge(e);
-            this.layer.addLayerObject(wall);
-            this.drawTrack.addTrackingEdge(e);
+        // for(const e of this.edges) {
+        //     e.lineObject.setColor(new Color(0x000000));
+        //     const wall = new EditorWall();
+        //     wall.addEdge(e);
+        //     this.layer.addLayerObject(wall);
+        //     this.drawTrack.addTrackingEdge(e);
             
-        }
+        // }
 
-       
+        (this.layer as IEditorDrawLayer).addWallsFromEdges(this.edges,  0x000000);
+        this.drawTrack.addTrackingEdge(...this.edges);
 
 
     
@@ -118,11 +119,11 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
         
         this.endDrawCallback();
         
-        for(const de of (this.layer as IEditorDrawLayer).devicedEdges){
+        for(const de of (this.layer as IEditorDrawLayer).devidedEdges){
             this.drawTrack.removeTrackingEdge(de);
         }
 
-        for(const t of (this.layer as IEditorDrawLayer).devicedEdges) {}
+        for(const t of (this.layer as IEditorDrawLayer).devidedEdges) {}
         this.drawTrack.addTrackingEdge(...(this.layer as IEditorDrawLayer).fromDevidedEdges);
        
 
@@ -163,6 +164,7 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
         
         const trackPoint = this.getDrawTrack(point);
         const tempPoint = trackPoint.point;
+
     
         this.tempEdge.endPoint = tempPoint;
         
@@ -399,9 +401,10 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
 
          
         const coll = this.drawTrack.getCollinearlyTrack(point) as IDrawTrackInfoCollinearly;
-        tempPoint = coll.point;
+        
 
         if(coll.isPoint) {
+            tempPoint = coll.point;
             fillColor = this.drawTrack.collinearlyTrackColor;
         }
 

@@ -57,6 +57,10 @@ export class ViewModelToolsNavigation extends ViewModel implements IViewModelToo
 
         this._toolsCommands["cancelCommand"].clickCallback = this.cancelCommand.bind(this);
 
+        this._toolsCommands["selectCommand"].clickCallback = ()=>{
+            this.editor.selectAction();
+        }
+
         /**
          * Rysowanie dowolnego ksztaltu
          */
