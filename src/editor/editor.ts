@@ -455,9 +455,10 @@ export class Editor implements IEditor{
 
    private createLayers(){
 
-        const drawLayer:IEditorDrawLayer = new EditorDrawLayer();
+        const drawLayer:IEditorDrawLayer = new EditorDrawLayer(this.resolution);
         this._layers.push(drawLayer);
         this.scene.add(drawLayer.group);
+        drawLayer.render = this.render.bind(this);
 
         //TODO - tymczasowo
         this._currentLayer = drawLayer;

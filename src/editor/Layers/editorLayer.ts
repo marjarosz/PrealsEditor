@@ -15,8 +15,9 @@ export interface IEditorLayer {
 
     setDrawTrack(drawTrack: IDrawTrack): void;
 
-
     readonly layerObjects: ILayerObject[];
+
+    render: ()=>void;
 }
 
 

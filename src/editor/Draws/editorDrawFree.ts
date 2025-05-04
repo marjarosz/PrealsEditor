@@ -102,6 +102,8 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
             
         // }
 
+        
+
         (this.layer as IEditorDrawLayer).addWallsFromEdges(this.edges,  0x000000);
         this.drawTrack.addTrackingEdge(...this.edges);
 
@@ -236,9 +238,12 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
    
         if(edgeTrack.isPoint) {
             addPoint = edgeTrack.point;
+
+            
         }
 
         isLastPoint = (edgeTrack as IDrawTrackInfoEdge).startOrEndPoint;
+        
 
         /**
          * Czy przecina narysowane krawedzie
@@ -259,6 +264,7 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
 
         const sP = (this.edges.length > 0) ? this.edges[this.edges.length - 1].endPoint : this.pointers[this.pointers.length-1].sPoint;
 
+      
         
         const edge = new LineSegmentEdge(sP, addPoint, this.resolution, this.lineWidth, this.drawColor);
         edge.renderOrder = this.layer.renderOrder + 1;

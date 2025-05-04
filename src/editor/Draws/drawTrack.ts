@@ -430,6 +430,7 @@ export class DrawTrack implements IDrawTrack {
                 ret.edges.push(...this.trackingEdges.filter(x=>EditorMath.equalsVectors(x.endPoint, e.endPoint, EditorMath.TOLERANCE_0_10)));
                 ret.startOrEndPoint = true;
                 //edge.endPoint = ret.point;
+             
                 return ret;
             }
 
@@ -441,6 +442,7 @@ export class DrawTrack implements IDrawTrack {
                 ret.edges.push(...this.trackingEdges.filter(x=>EditorMath.equalsVectors(x.endPoint, e.startPoint, EditorMath.TOLERANCE_0_10)));
                 ret.startOrEndPoint = true;
                // edge.startPoint = ret.point;
+              
                 return ret;
             }
 
