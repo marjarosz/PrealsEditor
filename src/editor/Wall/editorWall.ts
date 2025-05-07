@@ -8,6 +8,7 @@ export interface IEditorWall extends ILayerObject{
     uuid: string;
 
     addEdge(edge: IEditorEdge): void
+
 }
 
 
@@ -16,6 +17,7 @@ export class EditorWall implements IEditorWall {
     edges: IEditorEdge[] = [];
 
     uuid: string;
+
 
     constructor(){
 

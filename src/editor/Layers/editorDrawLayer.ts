@@ -8,6 +8,7 @@ import { ArrayUtility } from "../../Utility/arrayUtility";
 import { EditorRoom, IEditorRoom } from "../Room/editorRoom";
 import { LineSegmentEdge } from "../Edges/lineSegmentEdge";
 import { IUniquePoints, UniquePoints } from "../../Utility/uniquePoints";
+import { DrawPointerCircle } from "../Pointers/drawPointerCircle";
 
 
 interface IFindListItem {edge1: IEditorEdge, edge2: IEditorEdge, point1: Vector2, point2: Vector2};
@@ -230,57 +231,71 @@ export class EditorDrawLayer extends EditorLayer implements IEditorDrawLayer {
 
 
 
-        const isone = this.edges.find(x=>
-            (EditorMath.equalsVectors(x.startPoint, this.addEdges[0].startPoint) && 
-            EditorMath.equalsVectors(x.endPoint, this.addEdges[this.addEdges.length - 1].endPoint))||
-            EditorMath.equalsVectors(x.startPoint, this.addEdges[0].endPoint) && 
-            EditorMath.equalsVectors(x.endPoint, this.addEdges[this.addEdges.length - 1].startPoint)
-        )
-        if(isone ) {
+        // const isone = this.edges.find(x=>
+        //     (EditorMath.equalsVectors(x.startPoint, this.addEdges[0].startPoint) && 
+        //     EditorMath.equalsVectors(x.endPoint, this.addEdges[this.addEdges.length - 1].endPoint))||
+        //     EditorMath.equalsVectors(x.startPoint, this.addEdges[0].endPoint) && 
+        //     EditorMath.equalsVectors(x.endPoint, this.addEdges[this.addEdges.length - 1].startPoint)
+        // )
+        // if(isone ) {
 
-            let existWall: IEditorWall | undefined;
+        //     let existWall: IEditorWall | undefined;
 
-            for(const uuid of isone.containetInUuids) {
-                existWall = this.walls.find(x=>x.uuid === uuid);
-                if(existWall) {
-                    break;
-                }
-            }
+        //     for(const uuid of isone.containetInUuids) {
+        //         existWall = this.walls.find(x=>x.uuid === uuid);
+        //         if(existWall) {
+        //             break;
+        //         }
+        //     }
 
-            if(existWall){
-                const room = new EditorRoom();
-                const addWalls = [...addedWalls, existWall];
-                room.addWalls(addWalls);
-                this.addRoom(room);
-            }
-            this.edges.push(...this.addEdges);
-            console.log(this.rooms)
-            return;
+        //     if(existWall){
+        //         const room = new EditorRoom();
+        //         const addWalls = [...addedWalls, existWall];
+        //         room.addWalls(addWalls);
+        //         this.addRoom(room);
+        //     }
+        //     this.edges.push(...this.addEdges);
+        //     console.log(this.rooms)
+        //     return;
 
+        // }
+
+        const createdRoom: IEditorRoom[] = [];
+
+        this.findEdges(edges[0].startPoint, edges[edges.length-1].endPoint, [], addedWalls, createdRoom);
+        
+        this.filtrRooms(createdRoom);
+
+        if(createdRoom.length != 1) {
+            throw ("Blad tworzenia pomieszczenia")
         }
 
-        this.findEdges(edges[0].startPoint, edges[edges.length-1].endPoint, [], addedWalls);
+        this.addRoom(createdRoom[0]);
+        this.edges.push(...this.addEdges);
+        /**
+         * Przefiltruj liste aby wylonic jedno pomieszczenie
+         */
 
         /**
          * Tworzymy tymczasowy room poprzez zamkniecie figury
          */
 
-        const endTempEdge = new LineSegmentEdge(edges[edges.length-1].endPoint, edges[0].startPoint, edges[0].resolution);
-        const endTempWall = new EditorWall();
-        endTempWall.addEdge(endTempEdge);
-        const tempRoom = new EditorRoom();
-        tempRoom.addWalls([...addedWalls, endTempWall ]);
+        // const endTempEdge = new LineSegmentEdge(edges[edges.length-1].endPoint, edges[0].startPoint, edges[0].resolution);
+        // const endTempWall = new EditorWall();
+        // endTempWall.addEdge(endTempEdge);
+        // const tempRoom = new EditorRoom();
+        // tempRoom.addWalls([...addedWalls, endTempWall ]);
         
         /**
          * znajdz punkkty ktore znajduja sie w utworzonym tymczasowym pomieszczeniu 
          */
 
-        const pointsInRoom: Vector2[] = [];
-        for(const up of this.uniquePoints.points) {
-            if(tempRoom.pointInRoom(up)) {
-                pointsInRoom.push(up);
-            }
-        }
+        // const pointsInRoom: Vector2[] = [];
+        // for(const up of this.uniquePoints.points) {
+        //     if(tempRoom.pointInRoom(up)) {
+        //         pointsInRoom.push(up);
+        //     }
+        // }
         
 
 
@@ -306,7 +321,7 @@ export class EditorDrawLayer extends EditorLayer implements IEditorDrawLayer {
 
     }
 
-    private findEdges(startPoint: Vector2, endPoint: Vector2, currentList: IFindListItem[], addedWalls: EditorWall[]){
+    private findEdges(startPoint: Vector2, endPoint: Vector2, currentList: IFindListItem[], addedWalls: EditorWall[], createdRooms: IEditorRoom[]){
 
      
    
@@ -355,12 +370,12 @@ export class EditorDrawLayer extends EditorLayer implements IEditorDrawLayer {
                     point2: endEdges[j].startPoint
                 })
 
-                console.log(startEdges[i].endPoint, endEdges[j].startPoint);
+                // console.log(startEdges[i].endPoint, endEdges[j].startPoint);
 
-                const tEdge = new LineSegmentEdge(startEdges[i].endPoint, endEdges[j].startPoint, this.resolution, 1, 0x2e00ff);
-                tEdge.renderOrder = 100;
-                tEdge.updateModel();
-                this.group.add(tEdge.lineObject);
+                // const tEdge = new LineSegmentEdge(startEdges[i].endPoint, endEdges[j].startPoint, this.resolution, 1, 0x2e00ff);
+                // tEdge.renderOrder = 100;
+                // tEdge.updateModel();
+                // this.group.add(tEdge.lineObject);
 
             }
 
@@ -373,12 +388,12 @@ export class EditorDrawLayer extends EditorLayer implements IEditorDrawLayer {
                     point2: endEdges[j].endPoint
                 })
 
-                console.log(startEdges[i].endPoint, endEdges[j].endPoint);
+                // console.log(startEdges[i].endPoint, endEdges[j].endPoint);
 
-                const tEdge = new LineSegmentEdge(startEdges[i].endPoint, endEdges[j].endPoint, this.resolution, 1, 0x2e00ff);
-                tEdge.renderOrder = 100;
-                tEdge.updateModel();
-                this.group.add(tEdge.lineObject);
+                // const tEdge = new LineSegmentEdge(startEdges[i].endPoint, endEdges[j].endPoint, this.resolution, 1, 0x2e00ff);
+                // tEdge.renderOrder = 100;
+                // tEdge.updateModel();
+                // this.group.add(tEdge.lineObject);
 
             }
 
@@ -400,12 +415,12 @@ export class EditorDrawLayer extends EditorLayer implements IEditorDrawLayer {
                     point2: endEdges[j].startPoint
                 })
 
-                console.log(startEdges[i].startPoint, endEdges[j].startPoint);
+                // console.log(startEdges[i].startPoint, endEdges[j].startPoint);
 
-                const tEdge = new LineSegmentEdge(startEdges[i].startPoint, endEdges[j].startPoint, this.resolution, 1, 0x2e00ff);
-                tEdge.renderOrder = 100;
-                tEdge.updateModel();
-                this.group.add(tEdge.lineObject);
+                // const tEdge = new LineSegmentEdge(startEdges[i].startPoint, endEdges[j].startPoint, this.resolution, 1, 0x2e00ff);
+                // tEdge.renderOrder = 100;
+                // tEdge.updateModel();
+                // this.group.add(tEdge.lineObject);
 
             }
 
@@ -418,12 +433,12 @@ export class EditorDrawLayer extends EditorLayer implements IEditorDrawLayer {
                     point2: endEdges[j].endPoint
                 })
 
-                console.log(startEdges[i].startPoint, endEdges[j].endPoint);
+                // console.log(startEdges[i].startPoint, endEdges[j].endPoint);
 
-                const tEdge = new LineSegmentEdge(startEdges[i].startPoint, endEdges[j].endPoint, this.resolution, 1, 0x2e00ff);
-                tEdge.renderOrder = 100;
-                tEdge.updateModel();
-                this.group.add(tEdge.lineObject);
+                // const tEdge = new LineSegmentEdge(startEdges[i].startPoint, endEdges[j].endPoint, this.resolution, 1, 0x2e00ff);
+                // tEdge.renderOrder = 100;
+                // tEdge.updateModel();
+                // this.group.add(tEdge.lineObject);
 
             }
         }
@@ -468,15 +483,17 @@ export class EditorDrawLayer extends EditorLayer implements IEditorDrawLayer {
         }
 
         for(const idx of removeFromList) {
+            
+          
             ArrayUtility.removeItemFromArray(list, idx);
         }
 
 
         for(const obj of list) {
-            const tEdge = new LineSegmentEdge(obj.point1, obj.point2, this.resolution, 1, 0xea00ff);
-            tEdge.renderOrder = 120;
-            tEdge.updateModel();
-            this.group.add(tEdge.lineObject);
+            // const tEdge = new LineSegmentEdge(obj.point1, obj.point2, this.resolution, 1, 0xea00ff);
+            // tEdge.renderOrder = 120;
+            // tEdge.updateModel();
+            // this.group.add(tEdge.lineObject);
 
 
             let isRoom = false;
@@ -486,43 +503,60 @@ export class EditorDrawLayer extends EditorLayer implements IEditorDrawLayer {
             if(obj.edge1.uuid === obj.edge2.uuid){
 
                 /**
-                 * Punkt poczatkowy oraz punkt konczowy laczy ta sama krawedz - dodaj do listy z ktorych mozna utworzyc ksztalt
+                 * Punkt poczatkowy oraz punkt konczowy laczy ta sama krawedz - tworzy pomieszczenie i dodaje do listy
                  */
                 const newRoom = new EditorRoom();
                 newRoom.addWalls([...addedWalls, ...this.findWalls(currentList), ...this.findWall(obj.edge1)]);
                 isRoom = true;
                 
-                console.log(newRoom)
+                
+                if(newRoom.checkRoomGeometry()){
+                    createdRooms.push(newRoom);
+                }
                
             }
 
-
+            
             /**
              * Czy punkt 1 oraz 2 sa takie same - sa polaczone ze soba
              */
             if(EditorMath.equalsVectors(obj.point1, obj.point2)) {
 
                 /**
-                 * Krawedzie lacza sie ze soba - dodaj do listy z ktorych mozna utworzyc ksztalt
+                 * Krawedzie lacza sie ze soba - tworzy pomieszczenie i dodaje do listy
                  */
                 const newRoom = new EditorRoom();
                 newRoom.addWalls([...addedWalls, ...this.findWalls([...currentList, obj])]);
                 isRoom = true;
-                console.log(newRoom);
+
+
+                
+                if(newRoom.checkRoomGeometry()) {
+                    createdRooms.push(newRoom);
+                }
 
             }
 
             if(!isRoom) {
-                this.findEdges(obj.point1, obj.point2, [...currentList, obj], addedWalls);
+                /**
+                 * Rekurencja - nastepne krawedzie
+                 */
+                this.findEdges(obj.point1, obj.point2, [...currentList, obj], addedWalls, createdRooms);
             }
         }
 
-        console.log(list)
+        //console.log(list)
         this.render();
 
     }
 
-
+    /**
+     * 
+     * Szuka scian do kotrych nalezy krawedz
+     * 
+     * @param edge 
+     * @returns 
+     */
     private findWall(edge: IEditorEdge) {
 
         const wallsList: IEditorWall[] = [];
@@ -536,6 +570,13 @@ export class EditorDrawLayer extends EditorLayer implements IEditorDrawLayer {
         return wallsList;
     }
 
+    /**
+     * 
+     * Szuka scian z listy IFindListItem
+     * 
+     * @param currentList 
+     * @returns 
+     */
     private findWalls(currentList: IFindListItem[]){
 
         const wallsList: IEditorWall[] = [];
@@ -559,7 +600,14 @@ export class EditorDrawLayer extends EditorLayer implements IEditorDrawLayer {
         return wallsList;
     }
 
-
+    /**
+     * 
+     * Czysci liste krawedzi ktore znajduja sie na liscie IFindListItem[]
+     * 
+     * @param list 
+     * @param currentList 
+     * @returns 
+     */
     private filtrListFromCurrent(list: IEditorEdge[], currentList: IFindListItem[]) {
 
         const toRemove: IEditorEdge[] = [];
@@ -576,5 +624,125 @@ export class EditorDrawLayer extends EditorLayer implements IEditorDrawLayer {
         return list;
     }
 
+
+    private filtrRooms(roomList: IEditorRoom[]) {
+
+        const toRemove: IEditorRoom[] = [];
+
+        /**
+         * Filtracja po srodkach ciezkosci triangulacji
+         */
+        for(let i = 0; i<roomList.length; ++i) {
+
+            for(let j = 0; j<roomList.length; ++j) {
+
+                if(roomList[i].uuid != roomList[j].uuid) {
+                    for(const point of roomList[i].midpointTriangls) {
+                        const pointInRoom = roomList[j].pointInRoom(point, false);
+                        if(!pointInRoom) {
+                            toRemove.push(roomList[i]);
+                            break;
+                        }
+                    }
+                }  
+            }
+
+        }
+        // for(const room of roomList) {
+           
+           
+
+        //     setTimeout(()=>{
+
+        //         for(const w of room.walls) {
+        //             for(const edg of w.edges) {
+        //                 edg.edgeColor = new Color(0xf1ff00);
+        //             }
+        //         }
+        //         this.render();
+        //         alert("t")
+        //         for(const w of room.walls) {
+        //             for(const edg of w.edges) {
+        //                 edg.edgeColor = new Color(0x000000);
+        //             }
+        //         }
+        //     }, 0);
+            
+           
+
+
+        // }
+
+    
+        
+        for(const r of toRemove) {
+            ArrayUtility.removeItemFromArray(roomList, r);
+        }
+       
+        toRemove.length = 0;
+        if(roomList.length > 1) {
+
+            /**
+             * Filtracja po unique points
+             */
+            for(const r of roomList){
+                for(const rr of roomList){
+                   
+
+                    if(r.uuid != rr.uuid) {
+                        console.log(r, rr);
+                        for(const up of r.uniquePointers) {
+                        
+                            const isInRoom = rr.uniquePointers.find(x=>EditorMath.equalsVectors(x, up));
+ 
+                            if(!isInRoom) {
+                                 const pointInRoom = rr.pointInRoom(up, false);
+                                 
+                                 if(!pointInRoom) {
+                                    toRemove.push(r);
+                                    break;
+                                 }
+                            }
+                        }
+                    }
+
+                   
+                }
+            }
+            
+        }
+
+        for(const r of toRemove) {
+            ArrayUtility.removeItemFromArray(roomList, r);
+        }
+
+
+        for(const room of roomList) {
+
+            for(const w of room.walls) {
+                for(const edg of w.edges) {
+                    edg.edgeColor = new Color(0xff00ff);
+                }
+            }
+        }
+        this.render();
+
+        setTimeout(()=>{
+
+            alert("KONIEC")
+            for(const room of roomList) {
+
+                for(const w of room.walls) {
+                    for(const edg of w.edges) {
+                        edg.edgeColor = new Color(0x000000);
+                    }
+                }
+            }
+            this.render();
+        }, 100)
+
+        
+        console.log(roomList);
+    }
 
 }
