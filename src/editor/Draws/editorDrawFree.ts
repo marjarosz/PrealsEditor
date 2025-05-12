@@ -167,7 +167,9 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
         const trackPoint = this.getDrawTrack(point);
         const tempPoint = trackPoint.point;
 
-    
+        
+
+
         this.tempEdge.endPoint = tempPoint;
         
         const edgeTrack = this.drawTrack.getEdgeTrack(this.tempEdge, 
@@ -395,6 +397,7 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
          * ORTO
          */
          const trackOrto = this.drawTrack.getOrtoTrack(point);
+        
          let tempPoint = trackOrto.point;
  
          if(trackOrto.isPoint){
@@ -419,10 +422,11 @@ export class EditorDrawFree extends EditorDraw implements IEditorDrawFree {
          */
         const trackPoints = this.drawTrack.getPointTrack(tempPoint);
         tempPoint = trackPoints.point;
+
+   
         
         if(trackPoints.isPoint){
             fillColor = this.drawTrack.pointTrackColor;
-
             this.checkCollinearlyTrack(trackPoints, coll, tempPoint);
 
         }

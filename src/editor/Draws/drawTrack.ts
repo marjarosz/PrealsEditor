@@ -494,6 +494,7 @@ export class DrawTrack implements IDrawTrack {
             edges:[]
         }
 
+        return ret;
         this.removeCollinearlyTrackLine();
         for(const e of this.trackingEdges) {
 
@@ -590,8 +591,9 @@ export class DrawTrack implements IDrawTrack {
                         
                         return this.setDrawTrackInfoPointEdge(ret, pp, true, true, true);
                     } else {
-                        this.collinearlyTrackLine =  this.createDashedTrackLine(e.startPoint, pp, this.collinearlyTrackColor, this.collinearlyTrackSize);
-                        return this.setDrawTrackInfoPointEdge(ret, pp, true, true, true, true);
+                        //TODO - wspoliniowosc
+                       // this.collinearlyTrackLine =  this.createDashedTrackLine(e.startPoint, pp, this.collinearlyTrackColor, this.collinearlyTrackSize);
+                      //  return this.setDrawTrackInfoPointEdge(ret, pp, true, true, true, true);
                     }
 
                 }

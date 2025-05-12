@@ -7,6 +7,7 @@ import { generateUUID } from "three/src/math/MathUtils";
 import { LineSegmentEdge } from "../Edges/lineSegmentEdge";
 import { ArrayUtility } from "../../Utility/arrayUtility";
 import { IEditorEdge } from "../Edges/editorEdge";
+import { RoomUtility } from "./roomUtility";
 export interface IEditorRoom {
 
     uuid: string;
@@ -16,6 +17,8 @@ export interface IEditorRoom {
     midpointTriangls: Vector2[];
 
     readonly uniquePointers: Vector2[];
+
+    readonly area: number;
 
     addWalls(walls: IEditorWall[]): void;
 
@@ -49,6 +52,10 @@ export class EditorRoom implements IEditorRoom {
 
     get uniquePointers() {
         return this._uniquePointers.points;
+    }
+
+    get area(){
+        return this._area;
     }
 
     addWalls(walls: IEditorWall[]): void {
@@ -188,23 +195,25 @@ export class EditorRoom implements IEditorRoom {
 
     public checkRoomGeometry(){
 
-        for(const p of this._uniquePointers.points) {
+        return RoomUtility.checkRoomPointsGeometry(this._uniquePointers.points, this.walls)
 
-            let counts: number = 0;
-            for(const w of this.walls) {
+        // for(const p of this._uniquePointers.points) {
 
-                for(const e of w.edges) {
-                    if(EditorMath.equalsVectors(p, e.startPoint) || EditorMath.equalsVectors(p, e.endPoint)) {
-                        ++counts;
-                    }
-                }
-            }
-            if(counts > 2) {
-                return false;
-            }
-        }
+        //     let counts: number = 0;
+        //     for(const w of this.walls) {
 
-        return true;
+        //         for(const e of w.edges) {
+        //             if(EditorMath.equalsVectors(p, e.startPoint) || EditorMath.equalsVectors(p, e.endPoint)) {
+        //                 ++counts;
+        //             }
+        //         }
+        //     }
+        //     if(counts > 2) {
+        //         return false;
+        //     }
+        // }
+
+        // return true;
 
     }
 
@@ -302,13 +311,6 @@ export class EditorRoom implements IEditorRoom {
                 break;
             }
         }
-
-
-
-        
-        console.log(walls);
-        console.log(sorted);
-
         return sorted;
 
     }
